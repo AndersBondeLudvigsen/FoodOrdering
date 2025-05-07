@@ -6,6 +6,7 @@
   import Signup     from "./components/Signup/Signup.svelte";
   import Basket     from "./components/Basket/Basket.svelte";
   import MyOrders   from "./components/Orders/Orders.svelte";
+  import Recommend from "./components/Recommend/Recommend.svelte";
 </script>
 
 <Router>
@@ -15,6 +16,7 @@
     <Link to="/signup">Sign Up</Link>
     <Link to="/basket">Basket</Link>
     <Link to="/orders">My Orders</Link>
+    <Link to="/recommend"> Recommend</Link>
   </nav>
 
   <div style="padding:1rem">
@@ -36,6 +38,10 @@
 
     <Route path="/orders">
       <MyOrders />
+    </Route>
+
+    <Route path="/recommend">
+    <Recommend />
     </Route>
   </div>
 </Router>
