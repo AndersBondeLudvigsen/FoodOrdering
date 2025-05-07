@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import authRouter from './routers/authRouter.js';
 import menuRouter from './routers/menuRouter.js'
+import ordersRouter from './routers/ordersRouter.js'
 import cors from 'cors'
 
 
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', authRouter);
 app.use('/menu', menuRouter)
-
+app.use('/orders', ordersRouter)
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

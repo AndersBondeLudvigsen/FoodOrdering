@@ -1,11 +1,11 @@
 <!-- src/App.svelte -->
 <script>
   import { Router, Link, Route } from "svelte-routing";
-  import MenuPage from "./components/Pages/Menu.svelte";
-  import Login       from "./components/Login/Login.svelte";
-  import Signup      from "./components/Signup/Signup.svelte";
-
-  // for SSR support; you can ignore in a purely client-side setup
+  import MenuPage   from "./components/Pages/Menu.svelte";
+  import Login      from "./components/Login/Login.svelte";
+  import Signup     from "./components/Signup/Signup.svelte";
+  import Basket     from "./components/Basket/Basket.svelte";
+  import MyOrders   from "./components/Orders/Orders.svelte";
 </script>
 
 <Router>
@@ -13,6 +13,8 @@
     <Link to="/">Home</Link>
     <Link to="/login">Log In</Link>
     <Link to="/signup">Sign Up</Link>
+    <Link to="/basket">Basket</Link>
+    <Link to="/orders">My Orders</Link>
   </nav>
 
   <div style="padding:1rem">
@@ -27,7 +29,13 @@
     <Route path="/signup">
       <Signup />
     </Route>
+
+    <Route path="/basket">
+      <Basket />
+    </Route>
+
+    <Route path="/orders">
+      <MyOrders />
+    </Route>
   </div>
 </Router>
-
-
