@@ -5,33 +5,43 @@
     import * as toast   from '../../util/toast.js';
   
     let items = [];
-    cart.subscribe(v => items = v);
+    let loading = false;
+    cart.subscribe(v => (items = v));
   
-    async function placeOrder() {
+    async function placeOrderAndPay() {
       if (items.length === 0) {
         toast.error('Your basket is empty');
         return;
       }
+      loading = true;
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:8080/orders', {
+        if (!token) throw new Error('You must be logged in');
+  
+        const res = await fetch('http://localhost:8080/checkout/create-checkout-session', {
           method:  'POST',
           headers: {
             'Content-Type':  'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ items })
+          body: JSON.stringify({
+            items: items.map(i => ({
+              id:       i.id,
+              name:     i.name,
+              price:    i.price,
+              quantity: i.quantity
+            }))
+          })
         });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.message || 'Order failed');
-        }
-        const { orderId } = await res.json();
-        toast.success(`Order #${orderId} placed!`);
-        cart.set([]);            // clear basket
-        navigate('/orders');     // show them their orders
+  
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message || 'Failed to start checkout');
+  
+        window.location.href = body.url;
       } catch (err) {
         toast.error(err.message);
+      } finally {
+        loading = false;
       }
     }
   </script>
@@ -43,16 +53,18 @@
   {:else}
     <ul>
       {#each items as i}
-        <li>
-          {i.name} × {i.quantity} — {i.price * i.quantity} DKK
-        </li>
+        <li>{i.name} × {i.quantity} — {i.price * i.quantity} DKK</li>
       {/each}
     </ul>
-    <p><strong>Total:</strong> {items.reduce((s,i)=>s+i.price*i.quantity,0)} DKK</p>
-    <button on:click={placeOrder}>Place Order</button>
+    <p><strong>Total:</strong> {items.reduce((s,i)=>s + i.price*i.quantity,0)} DKK</p>
+    <button on:click={placeOrderAndPay} disabled={loading}>
+      {#if loading}Redirecting to payment…{:else}Place Order & Pay{/if}
+    </button>
   {/if}
   
   <style>
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 0.5rem; }
     button {
       margin-top: 1rem;
       padding: 0.5rem 1rem;
@@ -62,6 +74,6 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    button:hover { background: #1e874b }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
   </style>
   

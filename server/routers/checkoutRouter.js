@@ -1,0 +1,42 @@
+import { Router } from 'express';
+import Stripe from 'stripe';
+import { authenticate } from '../middleware/authenticate.js';
+
+const router = Router();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+router.post('/create-checkout-session', authenticate, async (req, res) => {
+  const { items } = req.body;
+  if (!Array.isArray(items) || !items.length) {
+    return res.status(400).json({ message: 'Cart is empty' });
+  }
+
+  // Convert your cart items to Stripe line items:
+  const line_items = items.map(({ id, name, price, quantity }) => ({
+    price_data: {
+      currency: 'dkk',
+      product_data: { name },
+      unit_amount: Math.round(price * 100), // DKK → øre
+    },
+    quantity,
+  }));
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items,
+      mode: 'payment',
+      success_url: `${process.env.CLIENT_URL}/orders?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/basket`,
+      metadata: {
+        userId: req.user.id
+      }
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe checkout error:', err);
+    res.status(500).json({ message: 'Could not create checkout session' });
+  }
+});
+
+export default router;
