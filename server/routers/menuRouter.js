@@ -8,17 +8,26 @@ const router = Router();
 router.get('/', authenticate, async (req, res) => {
   try {
     const { rows } = await query(`
-      SELECT
-        id,
-        name,
-        ingredients,    -- array of text
-        price,
-        available,
-        category,
-        image_url       -- thumbnail URL
-      FROM menu_items
-      ORDER BY id
-    `);
+              SELECT
+              mi.id,
+              mi.name,
+              mi.price,
+              mi.available,
+              mi.category,
+              mi.image_url,
+              -- aggregate the ingredient names into a JSON array
+              COALESCE(
+               json_agg(i.name) FILTER (WHERE i.id IS NOT NULL),
+                '[]'
+              ) AS ingredients
+            FROM menu_items mi
+            LEFT JOIN menu_item_ingredients mii
+              ON mii.menu_item_id = mi.id
+            LEFT JOIN ingredients i
+              ON i.id = mii.ingredient_id
+            GROUP BY mi.id
+            ORDER BY mi.id
+          `);
     res.json(rows);
   } catch (err) {
     console.error('Error loading menu:', err);

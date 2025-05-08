@@ -14,12 +14,11 @@ async function clear() {
   try {
     console.log('⏳ Truncating menu_items (and cascaded tables)…');
     // This will also truncate any tables with FKs pointing to menu_items
-    await pool.query(`
-      TRUNCATE TABLE menu_items
-      RESTART IDENTITY
-      CASCADE;
-    `);
-    console.log('✅ menu_items cleared.');
+      await pool.query(`
+           TRUNCATE TABLE menu_item_ingredients, menu_items, ingredients
+           RESTART IDENTITY
+           CASCADE;
+         `);og('✅ menu_items cleared.');
   } catch (err) {
     console.error('❌ Error clearing database:', err);
   } finally {
