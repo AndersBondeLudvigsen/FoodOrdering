@@ -1,26 +1,36 @@
-import express from 'express';
+// server/app.js
+import http       from 'http';
+import express    from 'express';
+import cors       from 'cors';
 import cookieParser from 'cookie-parser';
-import authRouter from './routers/authRouter.js';
-import menuRouter from './routers/menuRouter.js'
-import ordersRouter from './routers/ordersRouter.js'
-import recomend from './routers/recomend.js'
-import cors from 'cors'
+import { initSocket } from './middleware/socketIo.js';
+
+import authRouter     from './routers/authRouter.js';
+import menuRouter     from './routers/menuRouter.js';
+import ordersRouter   from './routers/ordersRouter.js';  // unchanged
+import recommend      from './routers/recommend.js';
 import checkoutRouter from './routers/checkoutRouter.js';
+import kitchenRouter  from './routers/kitchenRouter.js'
+const app    = express();
+const server = http.createServer(app);
 
-
-const app = express();
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-  }));
-
+app.use(cors({ origin:'http://localhost:5173', credentials:true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use('/auth', authRouter);
-app.use('/menu', menuRouter)
-app.use('/orders', ordersRouter)
-app.use('/recommend', recomend)
-app.use('/checkout', checkoutRouter);
 
+app.use('/auth',    authRouter);
+app.use('/menu',    menuRouter);
+app.use('/recommend',recommend);
+app.use('/checkout',checkoutRouter);
+
+// ─── initialize io *before* mounting orders ─────────────────
+const io = initSocket(server);
+
+io.on('connection', socket => {
+  console.log('🔌 Socket connected', socket.id);
+});
+
+app.use('/orders', ordersRouter);
+app.use('/kitchen', kitchenRouter)
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server on ${PORT}`));
