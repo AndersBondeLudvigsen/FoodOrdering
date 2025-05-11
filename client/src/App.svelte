@@ -10,6 +10,7 @@
   import MyOrders   from "./components/Orders/Orders.svelte";
   import Recommend  from "./components/Recommend/Recommend.svelte";
   import Kitchen    from "./components/Kitchen/Kitchen.svelte";
+  import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
 
   function logout() {
     token.set(null);
@@ -25,6 +26,7 @@
       <Link to="/orders">My Orders</Link>
       <Link to="/recommend">Recommend</Link>
       <Link to="/kitchen">Kitchen</Link>
+      <Link to="/change-password">Change Password</Link>
       <button on:click={logout} style="margin-left:1rem">Log Out</button>
     </nav>
   {/if}
@@ -56,6 +58,10 @@
 
     <Route path="/kitchen">
       <Kitchen />
+    </Route>
+
+    <Route path="/change-password">
+      <ChangePassword />
     </Route>
   </div>
 </Router>
