@@ -183,4 +183,98 @@ router.delete(
   }
 );
 
+
+router.get(
+  '/users',
+  authenticate,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const { rows } = await query(`
+        SELECT id, username, email, role
+        FROM users
+        ORDER BY username
+      `);
+      res.json(rows);
+    } catch (err) {
+      console.error('Admin GET /users error:', err);
+      res.status(500).json({ message: 'Server error fetching users' });
+    }
+  }
+);
+
+// ——————————————————————————————————————————————
+// PATCH update a user’s role
+// ——————————————————————————————————————————————
+router.patch(
+  '/users/:id',
+  authenticate,
+  isAdmin,
+  async (req, res) => {
+    const userId = Number(req.params.id);
+    const { username, email, role, password } = req.body;
+
+    // Validate role if provided
+    if (role && !['customer', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    // Collect fields to update
+    const sets = [];
+    const values = [];
+    let idx = 1;
+
+    if (username) {
+      sets.push(`username = $${idx++}`);
+      values.push(username);
+    }
+
+    if (email) {
+      sets.push(`email = $${idx++}`);
+      values.push(email);
+    }
+
+    if (role) {
+      sets.push(`role = $${idx++}`);
+      values.push(role);
+    }
+
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      sets.push(`password = $${idx++}`);
+      values.push(hash);
+    }
+
+    if (sets.length === 0) {
+      return res.status(400).json({ message: 'No fields to update' });
+    }
+
+    // Build and run the UPDATE query
+    const sql = `
+      UPDATE users
+         SET ${sets.join(', ')}
+       WHERE id = $${idx}
+       RETURNING id, username, email, role
+    `;
+    values.push(userId);
+
+    try {
+      const result = await query(sql, values);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      return res.json(result.rows[0]);
+    } catch (err) {
+      // Handle unique violation on email
+      if (err.code === '23505' && err.constraint === 'users_email_key') {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+      console.error('Admin PATCH /users/:id error:', err);
+      return res.status(500).json({ message: 'Server error updating user' });
+    }
+  }
+);
+
 export default router;
