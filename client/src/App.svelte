@@ -1,16 +1,17 @@
 <!-- src/App.svelte -->
 <script>
   import { Router, Link, Route, navigate } from "svelte-routing";
-  import { token }                         from "./stores/auth.js";
+  import { token, user }                   from "./stores/auth.js";
 
-  import MenuPage   from "./components/Pages/Menu.svelte";
-  import Login      from "./components/Login/Login.svelte";
-  import Signup     from "./components/Signup/Signup.svelte";
-  import Basket     from "./components/Basket/Basket.svelte";
-  import MyOrders   from "./components/Orders/Orders.svelte";
-  import Recommend  from "./components/Recommend/Recommend.svelte";
-  import Kitchen    from "./components/Kitchen/Kitchen.svelte";
+  import MenuPage       from "./components/Pages/Menu.svelte";
+  import Login          from "./components/Login/Login.svelte";
+  import Signup         from "./components/Signup/Signup.svelte";
+  import Basket         from "./components/Basket/Basket.svelte";
+  import MyOrders       from "./components/Orders/Orders.svelte";
+  import Recommend      from "./components/Recommend/Recommend.svelte";
+  import Kitchen        from "./components/Kitchen/Kitchen.svelte";
   import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
+  import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
 
   function logout() {
     token.set(null);
@@ -27,6 +28,9 @@
       <Link to="/recommend">Recommend</Link>
       <Link to="/kitchen">Kitchen</Link>
       <Link to="/change-password">Change Password</Link>
+      {#if $user?.role === 'admin'}
+        <Link to="/admin">Admin Dashboard</Link>
+      {/if}
       <button on:click={logout} style="margin-left:1rem">Log Out</button>
     </nav>
   {/if}
@@ -63,5 +67,11 @@
     <Route path="/change-password">
       <ChangePassword />
     </Route>
+
+    {#if $user?.role === 'admin'}
+      <Route path="/admin">
+        <AdminDashboard />
+      </Route>
+    {/if}
   </div>
 </Router>

@@ -11,6 +11,7 @@ import ordersRouter   from './routers/ordersRouter.js';  // unchanged
 import recommend      from './routers/recommend.js';
 import checkoutRouter from './routers/checkoutRouter.js';
 import kitchenRouter  from './routers/kitchenRouter.js'
+import adminRouter    from './routers/adminRouter.js'
 const app    = express();
 const server = http.createServer(app);
 
@@ -22,6 +23,7 @@ app.use('/auth',    authRouter);
 app.use('/menu',    menuRouter);
 app.use('/recommend',recommend);
 app.use('/checkout',checkoutRouter);
+app.use('/admin', adminRouter);
 
 // ─── initialize io *before* mounting orders ─────────────────
 const io = initSocket(server);
