@@ -2,6 +2,7 @@
 <script>
   import { navigate } from 'svelte-routing';
   import * as toast   from '../../util/toast.js';
+  import { token }    from '../../stores/auth.js';
 
   let email    = '';
   let password = '';
@@ -22,6 +23,7 @@
 
       // 1) Store the JWT in localStorage
       localStorage.setItem('token', body.token);
+      token.set(body.token);
 
       toast.success('Logged in successfully!');
 
