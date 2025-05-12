@@ -1,3 +1,4 @@
+<!-- src/components/Orders/Orders.svelte -->
 <script>
   import { onMount }            from 'svelte';
   import { navigate, useLocation } from 'svelte-routing';
@@ -17,8 +18,9 @@
       toast.error('You must be logged in');
       return navigate('/login');
     }
+    const payload = JSON.parse(atob(token.split('.')[1]));
 
-    // 1) If Stripe just redirected back, finalize the order
+    // ─── 1) If Stripe just redirected back, finalize the pending order ───────────
     if (sessionId) {
       const pending = localStorage.getItem('pending_order');
       if (pending) {
@@ -46,7 +48,7 @@
       }
     }
 
-    // 2) Fetch all of my orders
+    // ─── 2) Load all orders for this user (any status) ─────────────────────────
     try {
       const res = await fetch('http://localhost:8080/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -60,10 +62,14 @@
       loading = false;
     }
 
-    // 3) Live-update any further orders via sockets
-    const socket = io('http://localhost:8080', { withCredentials: true });
+    // ─── 3) Socket setup: new orders & status updates ──────────────────────────
+    const socket = io('http://localhost:8080', {
+      withCredentials: true,
+      auth: { token }
+    });
+
+    // New orders placed
     socket.on('new-order', data => {
-      const payload  = JSON.parse(atob(token.split('.')[1]));
       if (data.userId === payload.id) {
         orders = [{
           id:         data.orderId,
@@ -72,6 +78,17 @@
           items:      data.items
         }, ...orders];
         toast.info(`New order #${data.orderId}`);
+      }
+    });
+
+    // Status updates for this user’s orders
+    socket.on('order-status-update', ({ orderId, status, userId }) => {
+      if (userId !== payload.id) return;
+      const idx = orders.findIndex(o => o.id === orderId);
+      if (idx !== -1) {
+        orders[idx].status = status;
+        orders = [...orders];   // re-render
+        toast.info(`Order #${orderId} is now "${status}"`);
       }
     });
   });

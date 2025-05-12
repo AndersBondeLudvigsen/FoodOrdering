@@ -12,6 +12,9 @@ import recommend      from './routers/recommend.js';
 import checkoutRouter from './routers/checkoutRouter.js';
 import kitchenRouter  from './routers/kitchenRouter.js'
 import adminRouter    from './routers/adminRouter.js'
+
+import { isKitchen } from './middleware/isKitchen.js';
+import { authenticate } from './middleware/authenticate.js';
 const app    = express();
 const server = http.createServer(app);
 
@@ -33,6 +36,6 @@ io.on('connection', socket => {
 });
 
 app.use('/orders', ordersRouter);
-app.use('/kitchen', kitchenRouter)
+app.use('/kitchen', authenticate, isKitchen, kitchenRouter)
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => console.log(`Server on ${PORT}`));

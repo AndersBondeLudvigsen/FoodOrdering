@@ -1,59 +1,94 @@
+<!-- src/components/Kitchen/Kitchen.svelte -->
 <script>
-  import { onMount } from "svelte";
-  import { io }      from "socket.io-client";
-  import * as toast  from "../../util/toast.js";
+  import { onMount } from 'svelte';
+  import { io }      from 'socket.io-client';
+  import * as toast  from '../../util/toast.js';
 
   let liveOrders = [];
   let loading    = true;
+  const statuses = ['pending','in making','ready'];
 
-  // 1) Fetch all pending orders from your new kitchen endpoint
-  async function loadPendingOrders() {
-    const token = localStorage.getItem("token");
+  // 1) Load all orders *up to* “ready”
+  async function loadOrders() {
+    const token = localStorage.getItem('token');
     if (!token) {
-      toast.error("You must be logged in to view the kitchen dashboard");
+      toast.error("Login required");
       return;
     }
-
     const res = await fetch("http://localhost:8080/kitchen/orders", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) {
-      toast.error("Failed to load pending orders");
-      console.error(await res.text());
+      toast.error("Failed to load orders");
       return;
     }
-
     const orders = await res.json();
-    liveOrders = orders.map((o) => ({
-      orderId:   o.id,
+    liveOrders = orders.map(o => ({
+      id:        o.id,
+      status:    o.status,
       createdAt: o.created_at,
-      items:     o.items.map((it) => ({
-        id:       it.menuItemId,
-        quantity: it.quantity,
-      })),
+      items:     o.items.map(it => ({ id: it.menuItemId, quantity: it.quantity }))
     }));
   }
 
+  // 2) Toggle status on the server (and broadcast)
+  async function toggleStatus(order) {
+    const idx  = statuses.indexOf(order.status);
+    if (idx < 0 || idx === statuses.length - 1) return;
+    const next = statuses[idx + 1];
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(
+        `http://localhost:8080/kitchen/orders/${order.id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: next })
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update status");
+      order.status = next;
+      liveOrders = [...liveOrders];  // trigger re-render
+      toast.success(`Order #${order.id} → "${next}"`);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
+
   onMount(async () => {
-    // Boot-strap the list from the database
-    await loadPendingOrders();
+    await loadOrders();
     loading = false;
 
-    // Then open the socket so we don’t miss any new orders
-    const socket = io("http://localhost:8080", { withCredentials: true });
-    socket.on("new-order", (order) => {
+    const token  = localStorage.getItem('token');
+    const socket = io('http://localhost:8080', {
+      withCredentials: true,
+      auth: { token }
+    });
+
+    // New orders
+    socket.on("new-order", order => {
       liveOrders = [
         {
-          orderId:   order.orderId,
+          id:        order.orderId,
+          status:    "pending",
           createdAt: order.createdAt,
-          items:     order.items.map((it) => ({
-            id:       it.id,
-            quantity: it.quantity,
-          })),
+          items:     order.items.map(it => ({ id: it.id, quantity: it.quantity }))
         },
-        ...liveOrders,
+        ...liveOrders
       ];
       toast.info(`New order #${order.orderId}`);
+    });
+
+    // Status changes (so multiple cooks' actions sync)
+    socket.on("order-status-update", ({ orderId, status }) => {
+      const o = liveOrders.find(o => o.id === orderId);
+      if (o) {
+        o.status = status;
+        liveOrders = [...liveOrders];
+      }
     });
   });
 </script>
@@ -61,15 +96,23 @@
 <h1>👩‍🍳 Kitchen Dashboard</h1>
 
 {#if loading}
-  <p>Loading pending orders…</p>
+  <p>Loading orders…</p>
 {:else if liveOrders.length === 0}
-  <p>No pending orders…</p>
+  <p>No orders yet…</p>
 {:else}
   <ul>
     {#each liveOrders as o}
-      <li style="margin:1rem 0">
-        <strong>Order #{o.orderId}</strong>
+      <li style="margin:1rem 0; border:1px solid #ddd; padding:0.5rem; border-radius:4px">
+        <strong>Order #{o.id}</strong>
         <div>Placed @ {new Date(o.createdAt).toLocaleTimeString()}</div>
+        <div>Status: <em>{o.status}</em></div>
+        <button
+          on:click={() => toggleStatus(o)}
+          disabled={o.status === 'ready'}
+          style="margin:0.5rem 0"
+        >
+          Next: {statuses[statuses.indexOf(o.status)+1] || '—'}
+        </button>
         <ul>
           {#each o.items as it}
             <li>Item {it.id} × {it.quantity}</li>
@@ -83,4 +126,5 @@
 <style>
   ul { list-style: none; padding: 0; }
   li > ul { margin-top: 0.5rem; padding-left: 1rem; }
+  button[disabled] { opacity: 0.5; cursor: not-allowed; }
 </style>

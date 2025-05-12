@@ -26,7 +26,9 @@
       <Link to="/basket">Basket</Link>
       <Link to="/orders">My Orders</Link>
       <Link to="/recommend">Recommend</Link>
+      {#if $user?.role === 'kitchen' }
       <Link to="/kitchen">Kitchen</Link>
+      {/if}
       <Link to="/change-password">Change Password</Link>
       {#if $user?.role === 'admin'}
         <Link to="/admin">Admin Dashboard</Link>
@@ -60,10 +62,12 @@
       <Recommend />
     </Route>
 
-    <Route path="/kitchen">
-      <Kitchen />
-    </Route>
-
+   
+    {#if $user?.role === 'kitchen'}
+      <Route path="/kitchen">
+        <Kitchen />
+      </Route>
+    {/if}
     <Route path="/change-password">
       <ChangePassword />
     </Route>
