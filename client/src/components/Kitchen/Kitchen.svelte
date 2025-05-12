@@ -8,6 +8,29 @@
   let loading    = true;
   const statuses = ['pending','in making','ready'];
 
+
+  async function cancelOrder(order) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(
+      `http://localhost:8080/kitchen/orders/${order.id}/cancel`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    if (!res.ok) throw new Error('Failed to cancel order');
+    order.status = 'cancelled';
+    liveOrders = [...liveOrders];          // trigger re-render
+    toast.success(`Order #${order.id} cancelled`);
+  } catch (err) {
+    toast.error(err.message);
+  }
+}
+
   // 1) Load all orders *up to* “ready”
   async function loadOrders() {
     const token = localStorage.getItem('token');
@@ -113,6 +136,18 @@
         >
           Next: {statuses[statuses.indexOf(o.status)+1] || '—'}
         </button>
+
+ <!-- Cancel button -->
+ <button
+   on:click={() => cancelOrder(o)}
+   disabled={o.status === 'cancelled' || o.status === 'ready'}
+   style="margin:0.5rem 0; margin-left:0.5rem; background:#e53e3e; color:white;"
+ >
+   Cancel
+ </button>
+
+
+
         <ul>
           {#each o.items as it}
             <li>Item {it.id} × {it.quantity}</li>

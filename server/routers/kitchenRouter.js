@@ -88,4 +88,32 @@ router.patch('/orders/:id/status', async (req, res) => {
   }
 });
 
+router.patch('/orders/:id/cancel', async (req, res) => {
+  const orderId = Number(req.params.id);
+  try {
+    // 1) Update the order status to "cancelled"
+    const { rows } = await query(
+      `UPDATE orders
+         SET status = 'cancelled'
+       WHERE id = $1
+       RETURNING id, status, user_id`,
+      [orderId]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    const { status, user_id: userId } = rows[0];
+
+    // 2) Broadcast exactly like your status‐update
+    const io = getIO();
+    io.emit('order-status-update', { orderId, status, userId });
+    io.to(`user_${userId}`).emit('your-order-status', { orderId, status });
+
+    return res.json({ orderId, status });
+  } catch (err) {
+    console.error('Error cancelling order:', err);
+    return res.status(500).json({ message: 'Server error cancelling order' });
+  }
+});
+
 export default router;
