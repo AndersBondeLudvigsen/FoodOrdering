@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import { query }  from '../database/connection.js'; 
-import { authenticate } from '../middleware/authenticate.js';
   // <-- one level up, into db.js
 
 const router = Router();
@@ -97,7 +96,7 @@ router.post('/signup', async (req, res) => {
 
 router.patch(
   '/change-password',
-  authenticate,
+  
   async (req, res) => {
     const userId      = req.user.id;
     const { oldPassword, newPassword } = req.body;

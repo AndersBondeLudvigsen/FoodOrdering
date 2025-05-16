@@ -1,7 +1,6 @@
 // server/routers/ordersRouter.js
 import { Router }       from 'express';
 import { query }        from '../database/connection.js';
-import { authenticate } from '../middleware/authenticate.js';
 import { getIO }        from '../middleware/socketIo.js';   // ← correct path to your socket helper
 
 const router = Router();
@@ -11,7 +10,7 @@ const router = Router();
  * Body: { items: [{ id, quantity }, ...] }
  * Creates order + items, then emits 'new-order:userId'
  */
-router.post('/', authenticate, async (req, res) => {
+router.post('/', async (req, res) => {
   const userId = req.user.id;
   const { items } = req.body;
 
@@ -53,7 +52,7 @@ router.post('/', authenticate, async (req, res) => {
  * GET /orders
  * Returns all orders for the current user.
  */
-router.get('/', authenticate, async (req, res) => {
+router.get('/', async (req, res) => {
   const userId = req.user.id;
 
   try {

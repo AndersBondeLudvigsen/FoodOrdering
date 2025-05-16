@@ -3,7 +3,7 @@
   import { onMount } from 'svelte';
   import { navigate } from 'svelte-routing';
   import * as toast   from '../../util/toast.js';
-  import { cart }     from '../../util/cart.js';
+  import { cart }     from '../../stores/cart.js';
 
   let menu        = [];
   let loading     = true;

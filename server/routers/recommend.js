@@ -2,13 +2,12 @@
 import { Router } from 'express';
 import fetch       from 'node-fetch';
 import { query }   from '../database/connection.js';
-import { authenticate } from '../middleware/authenticate.js';
 
 const router   = Router();
 const CHAT_URL = 'https://api.mistral.ai/v1/chat/completions';
 const API_KEY  = process.env.MISTRALAI_API_KEY;
 
-router.post('/', authenticate, async (req, res) => {
+router.post('/', async (req, res) => {
   const { likedIngredients } = req.body;
   if (!Array.isArray(likedIngredients)) {
     return res

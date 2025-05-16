@@ -10,77 +10,93 @@
   import MyOrders       from "./components/Orders/Orders.svelte";
   import Recommend      from "./components/Recommend/Recommend.svelte";
   import Kitchen        from "./components/Kitchen/Kitchen.svelte";
+  import StockToggle    from "./components/Kitchen/StockToggle.svelte";
   import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
   import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
-  import StockToggle    from "./components/Kitchen/StockToggle.svelte";
 
+  // log out clears the token & sends you to login
   function logout() {
     token.set(null);
     navigate("/login");
   }
+
+  // make role easy to check in the template
+  $: role = $user?.role;
 </script>
 
 <Router>
   {#if $token}
     <nav>
-      <Link to="/">Home</Link>
-      <Link to="/basket">Basket</Link>
-      <Link to="/orders">My Orders</Link>
-      <Link to="/recommend">Recommend</Link>
-      {#if $user?.role === 'kitchen' }
-      <Link to="/kitchen">Kitchen</Link>
-      <Link to="/kitchen/stock-toggle">Stock Toggle</Link>
+      {#if role === 'customer'}
+        <Link to="/">Home</Link>
+        <Link to="/basket">Basket</Link>
+        <Link to="/orders">My Orders</Link>
+        <Link to="/recommend">Recommend</Link>
+        <Link to="/change-password">Change Password</Link>
       {/if}
-      <Link to="/change-password">Change Password</Link>
-      {#if $user?.role === 'admin'}
+
+      {#if role === 'kitchen'}
+        <Link to="/kitchen">Kitchen</Link>
+        <Link to="/kitchen/stock-toggle">Stock Toggle</Link>
+      {/if}
+
+      {#if role === 'admin'}
         <Link to="/admin">Admin Dashboard</Link>
       {/if}
-      <button on:click={logout} style="margin-left:1rem">Log Out</button>
+
+      <!-- everyone who’s logged in can change password -->
+      <button on:click={logout} style="margin-left:1rem">
+        Log Out
+      </button>
     </nav>
   {/if}
 
   <div style="padding:1rem">
-    <Route path="/" exact>
-      <MenuPage />
-    </Route>
-
+    <!-- Login/Signup always available as routes -->
     <Route path="/login">
       <Login />
     </Route>
-
     <Route path="/signup">
       <Signup />
     </Route>
 
-    <Route path="/basket">
-      <Basket />
-    </Route>
+    <!-- All the rest only if you’re logged in -->
+    {#if $token}
+      {#if role === 'customer'}
+        <Route path="/" exact>
+          <MenuPage />
+        </Route>
+        <Route path="/basket">
+          <Basket />
+        </Route>
+        <Route path="/orders">
+          <MyOrders />
+        </Route>
+        <Route path="/recommend">
+          <Recommend />
+        </Route>
+      {/if}
 
-    <Route path="/orders">
-      <MyOrders />
-    </Route>
+      {#if role === 'kitchen'}
+        <Route path="/kitchen">
+          <Kitchen />
+        </Route>
+        <Route path="/kitchen/stock-toggle">
+          <StockToggle />
+        </Route>
+      {/if}
 
-    <Route path="/recommend">
-      <Recommend />
-    </Route>
+      {#if role === 'admin'}
+        <Route path="/admin">
+          <AdminDashboard />
+        </Route>
+      {/if}
 
-   
-    {#if $user?.role === 'kitchen'}
-      <Route path="/kitchen">
-        <Kitchen />
-      </Route>
-      <Route path="/kitchen/stock-toggle">
-        <StockToggle />
+      <!-- Change Password for everyone who’s logged in -->
+      <Route path="/change-password">
+        <ChangePassword />
       </Route>
     {/if}
-    <Route path="/change-password">
-      <ChangePassword />
-    </Route>
-
-    {#if $user?.role === 'admin'}
-      <Route path="/admin">
-        <AdminDashboard />
-      </Route>
-    {/if}
+    
   </div>
 </Router>

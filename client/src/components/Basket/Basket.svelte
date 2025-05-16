@@ -1,5 +1,5 @@
 <script>
-  import { cart }   from '../../util/cart.js';
+  import { cart }   from '../../stores/cart.js';
   import * as toast from '../../util/toast.js';
 
   let items = [];

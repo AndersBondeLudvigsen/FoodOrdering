@@ -1,7 +1,5 @@
 // server/routers/adminRouter.js
 import { Router }       from 'express';
-import { authenticate } from '../middleware/authenticate.js';
-import { isAdmin }      from '../middleware/isAdmin.js';
 import { query }        from '../database/connection.js';
 
 const router = Router();
@@ -9,8 +7,6 @@ const router = Router();
 // ── GET all menu items with ingredients ──────────────────────────────────────
 router.get(
   '/menu-items',
-  authenticate,
-  isAdmin,
   async (req, res) => {
     try {
       const { rows } = await query(`
@@ -44,8 +40,6 @@ router.get(
 // ── POST create a new menu item ─────────────────────────────────────────────
 router.post(
   '/menu-items',
-  authenticate,
-  isAdmin,
   async (req, res) => {
     const {
       name,
@@ -105,8 +99,6 @@ router.post(
 // ── PATCH update an existing menu item ──────────────────────────────────────
 router.patch(
   '/menu-items/:id',
-  authenticate,
-  isAdmin,
   async (req, res) => {
     const itemId = Number(req.params.id);
     const {
@@ -166,8 +158,6 @@ router.patch(
 // ── DELETE a menu item ──────────────────────────────────────────────────────
 router.delete(
   '/menu-items/:id',
-  authenticate,
-  isAdmin,
   async (req, res) => {
     const itemId = Number(req.params.id);
     try {
@@ -186,8 +176,6 @@ router.delete(
 
 router.get(
   '/users',
-  authenticate,
-  isAdmin,
   async (req, res) => {
     try {
       const { rows } = await query(`
@@ -208,8 +196,6 @@ router.get(
 // ——————————————————————————————————————————————
 router.patch(
   '/users/:id',
-  authenticate,
-  isAdmin,
   async (req, res) => {
     const userId = Number(req.params.id);
     const { username, email, role, password } = req.body;

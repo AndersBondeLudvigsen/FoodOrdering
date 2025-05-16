@@ -1,11 +1,10 @@
 // src/routes/menuRouter.js
 import { Router } from 'express';
 import { query }  from '../database/connection.js';
-import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
-router.get('/', authenticate, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { rows } = await query(`
               SELECT

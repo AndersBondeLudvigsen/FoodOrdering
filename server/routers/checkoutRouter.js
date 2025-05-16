@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
-import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post('/create-checkout-session', authenticate, async (req, res) => {
+router.post('/create-checkout-session', async (req, res) => {
   const { items } = req.body;
   if (!Array.isArray(items) || !items.length) {
     return res.status(400).json({ message: 'Cart is empty' });
