@@ -20,7 +20,7 @@
     }
     const payload = JSON.parse(atob(token.split('.')[1]));
 
-    // ─── 1) If Stripe just redirected back, finalize the pending order ───────────
+    // 1) Finalize Stripe redirect
     if (sessionId) {
       const pending = localStorage.getItem('pending_order');
       if (pending) {
@@ -48,7 +48,7 @@
       }
     }
 
-    // ─── 2) Load all orders for this user (any status) ─────────────────────────
+    // 2) Load all orders
     try {
       const res = await fetch('http://localhost:8080/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -62,13 +62,12 @@
       loading = false;
     }
 
-    // ─── 3) Socket setup: new orders & status updates ──────────────────────────
+    // 3) Socket setup
     const socket = io('http://localhost:8080', {
       withCredentials: true,
       auth: { token }
     });
 
-    // New orders placed
     socket.on('new-order', data => {
       if (data.userId === payload.id) {
         orders = [{
@@ -81,17 +80,45 @@
       }
     });
 
-    // Status updates for this user’s orders
     socket.on('order-status-update', ({ orderId, status, userId }) => {
       if (userId !== payload.id) return;
       const idx = orders.findIndex(o => o.id === orderId);
       if (idx !== -1) {
         orders[idx].status = status;
-        orders = [...orders];   // re-render
+        orders = [...orders];
         toast.info(`Order #${orderId} is now "${status}"`);
       }
     });
   });
+
+  // Reorder a completed order
+  async function reorder(order) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('You must be logged in');
+      return;
+    }
+    try {
+      const items = order.items.map(it => ({ id: it.menuItemId, quantity: it.quantity }));
+      const res = await fetch('http://localhost:8080/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ items })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to reorder');
+      }
+      const { orderId } = await res.json();
+      toast.success(`Reorder #${orderId} placed!`);
+      // Optionally reload orders or prepend
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
 </script>
 
 <h1>My Orders</h1>
@@ -101,23 +128,136 @@
 {:else if orders.length === 0}
   <p>You have no orders yet.</p>
 {:else}
-  <ul>
-    {#each orders as o}
-      <li style="margin-bottom:1.5rem">
-        <strong>Order #{o.id}</strong> —
-        {new Date(o.created_at).toLocaleString()}
-        <div>Status: <em>{o.status}</em></div>
-        <ul>
-          {#each o.items as it}
-            <li>Item #{it.menuItemId} × {it.quantity}</li>
-          {/each}
-        </ul>
-      </li>
-    {/each}
-  </ul>
+  <div class="orders-board">
+    <section class="column">
+      <h2>Pending / Cancelled</h2>
+      {#each orders.filter(o => o.status === 'pending' || o.status === 'cancelled') as o}
+        <div class="order-card">
+          <header class="order-header">
+            <div>
+              <strong>#{o.id}</strong>
+              <time datetime={o.created_at}>{new Date(o.created_at).toLocaleTimeString()}</time>
+            </div>
+            <span class="status {o.status.replace(/\s+/g, '-')}">{o.status}</span>
+          </header>
+          <ul class="order-items">
+            {#each o.items as it}
+              <li>• {it.menuItemId} × {it.quantity}</li>
+            {/each}
+          </ul>
+        </div>
+      {/each}
+    </section>
+
+    <section class="column">
+      <h2>In Making</h2>
+      {#each orders.filter(o => o.status === 'in making') as o}
+        <div class="order-card">
+          <header class="order-header">
+            <div>
+              <strong>#{o.id}</strong>
+              <time datetime={o.created_at}>{new Date(o.created_at).toLocaleTimeString()}</time>
+            </div>
+            <span class="status in-making">in making</span>
+          </header>
+          <ul class="order-items">
+            {#each o.items as it}
+              <li>• {it.menuItemId} × {it.quantity}</li>
+            {/each}
+          </ul>
+        </div>
+      {/each}
+    </section>
+
+    <section class="column">
+      <h2>Ready to Pick Up</h2>
+      {#each orders.filter(o => o.status === 'ready') as o}
+        <div class="order-card">
+          <header class="order-header">
+            <div>
+              <strong>#{o.id}</strong>
+              <time datetime={o.created_at}>{new Date(o.created_at).toLocaleTimeString()}</time>
+            </div>
+            <span class="status ready">ready</span>
+          </header>
+          <ul class="order-items">
+            {#each o.items as it}
+              <li>• {it.menuItemId} × {it.quantity}</li>
+            {/each}
+          </ul>
+          <button class="reorder-btn" on:click={() => reorder(o)}>
+            Reorder
+          </button>
+        </div>
+      {/each}
+    </section>
+  </div>
 {/if}
 
 <style>
-  ul { list-style: none; padding: 0; }
-  li > ul { margin-top: 0.5rem; padding-left: 1rem; }
+  .orders-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .column {
+    background: #f9f9f9;
+    border-radius: 6px;
+    padding: 0.5rem;
+  }
+  .column h2 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+  .order-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+  .order-header time {
+    margin-left: 0.5rem;
+    font-size: 0.85em;
+    color: #555;
+  }
+  .status {
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.8em;
+    text-transform: capitalize;
+    color: white;
+  }
+  .status.pending    { background: orange; }
+  .status.cancelled  { background: #e53e3e; }
+  .status.in-making  { background: #3182ce; }
+  .status.ready      { background: #38a169; }
+  .order-items {
+    margin: 0;
+    padding-left: 1rem;
+  }
+  .order-items li {
+    margin: 0.25rem 0;
+  }
+  .reorder-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #2d3748;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .reorder-btn:hover {
+    background: #1a202c;
+  }
 </style>

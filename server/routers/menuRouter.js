@@ -35,4 +35,35 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    const { rows } = await query(
+      `SELECT
+         mi.id,
+         mi.name,
+         mi.price,
+         mi.category,
+         mi.image_url,
+         mi.available,
+         COALESCE(
+           (SELECT json_agg(i.name)
+              FROM menu_item_ingredients mii
+              JOIN ingredients i ON i.id = mii.ingredient_id
+             WHERE mii.menu_item_id = mi.id),
+           '[]'
+         ) AS ingredients
+       FROM menu_items mi
+       WHERE mi.id = $1`,
+      [id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error fetching menu item:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 export default router;

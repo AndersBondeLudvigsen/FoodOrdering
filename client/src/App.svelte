@@ -12,6 +12,7 @@
   import Kitchen        from "./components/Kitchen/Kitchen.svelte";
   import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
   import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
+  import StockToggle    from "./components/Kitchen/StockToggle.svelte";
 
   function logout() {
     token.set(null);
@@ -28,6 +29,7 @@
       <Link to="/recommend">Recommend</Link>
       {#if $user?.role === 'kitchen' }
       <Link to="/kitchen">Kitchen</Link>
+      <Link to="/kitchen/stock-toggle">Stock Toggle</Link>
       {/if}
       <Link to="/change-password">Change Password</Link>
       {#if $user?.role === 'admin'}
@@ -66,6 +68,9 @@
     {#if $user?.role === 'kitchen'}
       <Route path="/kitchen">
         <Kitchen />
+      </Route>
+      <Route path="/kitchen/stock-toggle">
+        <StockToggle />
       </Route>
     {/if}
     <Route path="/change-password">

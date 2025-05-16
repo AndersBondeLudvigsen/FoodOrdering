@@ -116,4 +116,41 @@ router.patch('/orders/:id/cancel', async (req, res) => {
   }
 });
 
+
+router.patch('/menu-items/:id/availability', async (req, res) => {
+  const itemId    = Number(req.params.id);
+  const { available } = req.body;  // expects { available: true|false }
+
+  if (typeof available !== 'boolean') {
+    return res.status(400).json({ message: 'available must be boolean' });
+  }
+
+  try {
+    // 1) Update DB
+    const { rows } = await query(
+      `UPDATE menu_items
+         SET available = $1
+       WHERE id = $2
+       RETURNING id, available`,
+      [available, itemId]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    const updated = rows[0];
+
+    // 2) Broadcast to all clients
+    const io = getIO();
+    io.emit('menu-item-updated', {
+      id:        updated.id,
+      available: updated.available
+    });
+
+    return res.json(updated);
+  } catch (err) {
+    console.error('Error updating availability:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;

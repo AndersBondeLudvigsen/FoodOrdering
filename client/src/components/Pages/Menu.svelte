@@ -5,8 +5,11 @@
   import * as toast   from '../../util/toast.js';
   import { cart }     from '../../util/cart.js';
 
-  let menu    = [];
-  let loading = true;
+  let menu        = [];
+  let loading     = true;
+  let categories  = [];
+  let selectedCat = 'All';
+  let searchTerm  = '';
 
   onMount(async () => {
     try {
@@ -26,6 +29,12 @@
       }
 
       menu = await res.json();
+
+      // Derive unique categories (fall back to "Uncategorized")
+      const cats = menu
+        .map(i => i.category || 'Uncategorized')
+        .filter(Boolean);
+      categories = ['All', ...Array.from(new Set(cats))];
     } catch (err) {
       toast.error(err.message);
       navigate('/login');
@@ -59,41 +68,66 @@
 
 {#if loading}
   <p>Loading…</p>
-{:else if menu.length === 0}
-  <p>No items available right now.</p>
 {:else}
-  <div class="menu-grid">
-    {#each menu as item}
-      <div class="menu-card">
-        <img src={item.image_url} alt={item.name} class="thumb" />
-        <h2>{item.name}</h2>
-        <p><strong>Price:</strong> {item.price} DKK</p>
-        <p>
-          <strong>Status:</strong>
-          <span class={item.available ? 'in-stock' : 'sold-out'}>
-            {item.available ? 'In Stock' : 'Sold Out'}
-          </span>
-        </p>
-        <details>
-          <summary>Ingredients</summary>
-          <ul>
-            {#each item.ingredients as ing}
-              <li>{ing}</li>
-            {/each}
-          </ul>
-        </details>
-        {#if item.available}
-          <button class="add-btn" on:click={() => addToCart(item)}>
-            Add to Basket
-          </button>
-        {:else}
-          <button class="add-btn" disabled>
-            Sold Out
-          </button>
-        {/if}
-      </div>
-    {/each}
-  </div>
+  {#if menu.length === 0}
+    <p>No items available right now.</p>
+  {:else}
+    <div class="controls">
+      <label class="filter-label">
+        Filter by category:
+        <select bind:value={selectedCat}>
+          {#each categories as cat}
+            <option value={cat}>{cat}</option>
+          {/each}
+        </select>
+      </label>
+      <label class="search-label">
+        Search by name:
+        <input
+          type="text"
+          placeholder="Start typing..."
+          bind:value={searchTerm}
+        />
+      </label>
+    </div>
+
+    <div class="menu-grid">
+      {#each menu
+         .filter(item =>
+           (selectedCat === 'All' || (item.category || 'Uncategorized') === selectedCat)
+           && item.name.toLowerCase().includes(searchTerm.toLowerCase())
+         ) as item}
+        <div class="menu-card">
+          <img src={item.image_url} alt={item.name} class="thumb" />
+          <h2>{item.name}</h2>
+          <p><strong>Price:</strong> {item.price} DKK</p>
+          <p>
+            <strong>Status:</strong>
+            <span class={item.available ? 'in-stock' : 'sold-out'}>
+              {item.available ? 'In Stock' : 'Sold Out'}
+            </span>
+          </p>
+          <details>
+            <summary>Ingredients</summary>
+            <ul>
+              {#each item.ingredients as ing}
+                <li>{ing}</li>
+              {/each}
+            </ul>
+          </details>
+          {#if item.available}
+            <button class="add-btn" on:click={() => addToCart(item)}>
+              Add to Basket
+            </button>
+          {:else}
+            <button class="add-btn" disabled>
+              Sold Out
+            </button>
+          {/if}
+        </div>
+      {/each}
+    </div>
+  {/if}
 {/if}
 
 <style>
@@ -108,6 +142,21 @@
   }
   .logout-btn:hover {
     background: #c0392b;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .filter-label, .search-label {
+    font-weight: bold;
+  }
+  .filter-label select,
+  .search-label input {
+    margin-left: 0.5rem;
+    padding: 0.25rem;
   }
 
   .menu-grid {
