@@ -12,5 +12,9 @@
     "socket.io": "^4.8.1",
     "stripe": "^18.1.0"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": { 
+    "clear-db": "node database/clearDb.js",
+    "seed-db": "node database/seedDb.js"}
+  
 }

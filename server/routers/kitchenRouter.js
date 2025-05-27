@@ -5,7 +5,7 @@ import { getIO }  from '../middleware/socketIo.js';
 const router = Router();
 
 
-router.get('/orders', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { rows } = await query(
       `
@@ -35,7 +35,7 @@ router.get('/orders', async (req, res) => {
 });
 
 
-router.patch('/orders/:id/status', async (req, res) => {
+router.patch('/:id/status', async (req, res) => {
   const orderId = Number(req.params.id);
   const { status } = req.body;
   const valid = ['pending', 'in making', 'ready'];
@@ -74,7 +74,7 @@ router.patch('/orders/:id/status', async (req, res) => {
   }
 });
 
-router.patch('/orders/:id/cancel', async (req, res) => {
+router.patch('/:id/cancel', async (req, res) => {
   const orderId = Number(req.params.id);
   try {
     const { rows } = await query(

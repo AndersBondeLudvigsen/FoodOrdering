@@ -2,8 +2,6 @@ import bcrypt from 'bcrypt';
 import { Router }       from 'express';
 import { query }        from '../database/connection.js';
 
-import { authenticate } from '../middleware/authenticate.js';
-
 const router = Router();
 
 router.get('/menu-items', async (req, res) => {

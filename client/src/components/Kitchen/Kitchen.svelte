@@ -13,7 +13,7 @@
       toast.error("Login required");
       return;
     }
-    const res = await fetch("http://localhost:8080/kitchen/orders", {
+    const res = await fetch("http://localhost:8080/kitchen", {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) {
@@ -36,7 +36,7 @@
     const token = localStorage.getItem('token');
     try {
       const res = await fetch(
-        `http://localhost:8080/kitchen/orders/${order.id}/status`,
+        `http://localhost:8080/kitchen/${order.id}/status`,
         {
           method: "PATCH",
           headers: {
@@ -59,7 +59,7 @@
     const token = localStorage.getItem('token');
     try {
       const res = await fetch(
-        `http://localhost:8080/kitchen/orders/${order.id}/cancel`,
+        `http://localhost:8080/kitchen/${order.id}/cancel`,
         {
           method: 'PATCH',
           headers: {

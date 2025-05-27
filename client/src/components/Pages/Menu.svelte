@@ -41,11 +41,6 @@
     }
   });
 
-  function logout() {
-    localStorage.removeItem('token');
-    toast.info('Logged out');
-    navigate('/login');
-  }
 
   function addToCart(item) {
     cart.update(current => {
@@ -62,7 +57,6 @@
 </script>
 
 <h1>Our Menu</h1>
-<button class="logout-btn" on:click={logout}>Log Out</button>
 
 {#if loading}
   <p>Loading…</p>
