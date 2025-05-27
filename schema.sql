@@ -1,8 +1,4 @@
--- --------------------------------------------------
--- Schema: normalized menu_items ↔ ingredients
--- --------------------------------------------------
 
--- 1) Users
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username TEXT NOT NULL,
@@ -11,7 +7,6 @@ CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL DEFAULT 'customer'
 );
 
--- 2) Menu items
 CREATE TABLE IF NOT EXISTS menu_items (
   id         SERIAL PRIMARY KEY,
   name       TEXT NOT NULL UNIQUE,
@@ -21,13 +16,11 @@ CREATE TABLE IF NOT EXISTS menu_items (
   available  BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- 3) Ingredients lookup
 CREATE TABLE IF NOT EXISTS ingredients (
   id   SERIAL PRIMARY KEY,
   name TEXT NOT NULL UNIQUE
 );
 
--- 4) Join table for menu_items ↔ ingredients
 CREATE TABLE IF NOT EXISTS menu_item_ingredients (
   menu_item_id  INTEGER NOT NULL
     REFERENCES menu_items(id)
@@ -38,7 +31,6 @@ CREATE TABLE IF NOT EXISTS menu_item_ingredients (
   PRIMARY KEY (menu_item_id, ingredient_id)
 );
 
--- 5) Orders
 CREATE TABLE IF NOT EXISTS orders (
   id         SERIAL PRIMARY KEY,
   user_id    INTEGER NOT NULL
@@ -47,7 +39,6 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6) Order items
 CREATE TABLE IF NOT EXISTS order_items (
   id            SERIAL PRIMARY KEY,
   order_id      INTEGER NOT NULL

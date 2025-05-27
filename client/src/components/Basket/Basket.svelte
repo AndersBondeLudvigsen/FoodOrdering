@@ -17,10 +17,8 @@
       const token = localStorage.getItem('token');
       if (!token) throw new Error('You must be logged in');
 
-      // 1) Stash the cart until after payment
       localStorage.setItem('pending_order', JSON.stringify(items));
 
-      // 2) Kick off Stripe Checkout
       const res = await fetch(
         'http://localhost:8080/checkout/create-checkout-session',
         {
@@ -42,7 +40,6 @@
       const body = await res.json();
       if (!res.ok) throw new Error(body.message || 'Failed to start checkout');
 
-      // 3) Redirect to Stripe
       window.location.href = body.url;
     } catch (err) {
       toast.error(err.message);

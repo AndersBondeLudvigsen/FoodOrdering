@@ -10,7 +10,6 @@
     let loading          = false;
   
     async function submit() {
-      // 1) client-side validation
       if (newPassword !== confirmPassword) {
         toast.error('New passwords do not match');
         return;

@@ -1,8 +1,6 @@
-// toast.js
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 
-// Configure toastr immediately when the module loads.
 toastr.options = {
   closeButton: true,
   progressBar: true,

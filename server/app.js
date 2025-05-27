@@ -1,13 +1,11 @@
-// server/app.js
 import http       from 'http';
 import express    from 'express';
 import cors       from 'cors';
 import cookieParser from 'cookie-parser';
-import { initSocket } from './middleware/socketIo.js';
 
 import authRouter     from './routers/authRouter.js';
 import menuRouter     from './routers/menuRouter.js';
-import ordersRouter   from './routers/ordersRouter.js';  // unchanged
+import ordersRouter   from './routers/ordersRouter.js';  
 import recommend      from './routers/recommend.js';
 import checkoutRouter from './routers/checkoutRouter.js';
 import kitchenRouter  from './routers/kitchenRouter.js'
@@ -16,6 +14,8 @@ import adminRouter    from './routers/adminRouter.js'
 import { isKitchen } from './middleware/isKitchen.js';
 import { authenticate } from './middleware/authenticate.js';
 import { isAdmin } from './middleware/isAdmin.js';
+import { initSocket } from './middleware/socketIo.js';
+
 const app    = express();
 const server = http.createServer(app);
 
@@ -32,7 +32,6 @@ app.use('/recommend',recommend);
 app.use('/checkout',checkoutRouter);
 app.use('/admin', isAdmin, adminRouter);
 
-// ─── initialize io *before* mounting orders ─────────────────
 const io = initSocket(server);
 
 io.on('connection', socket => {

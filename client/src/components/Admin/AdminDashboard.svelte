@@ -1,10 +1,8 @@
-<!-- src/components/Admin/AdminDashboard.svelte -->
 <script>
   import { onMount } from 'svelte';
   import { token }    from '../../stores/auth.js';
   import * as toast   from '../../util/toast.js';
 
-  // --- Menu Item Create State ---
   let showCreateModal = false;
   let createForm = { name: '', price: 0, category: '', image_url: '', available: true, ingredientsText: '' };
   function openCreate() {
@@ -41,7 +39,6 @@
     }
   }
 
-  // --- Menu Item Delete/Update State ---
   let showDeleteModal = false;
   let items = [];
   async function openDelete() {
@@ -114,7 +111,6 @@
     }
   }
 
-  // --- User Management State ---
   let showUsersModal = false;
   let users = [];
   let showUserUpdateModal = false;
@@ -176,7 +172,6 @@
   <button on:click={openUsers}>👥 Manage Users</button>
 </div>
 
-<!-- Create Modal -->
 {#if showCreateModal}
   <div class="modal-backdrop">
     <div class="modal">
@@ -195,7 +190,6 @@
   </div>
 {/if}
 
-<!-- Delete/Update Menu Items Modal -->
 {#if showDeleteModal}
   <div class="modal-backdrop">
     <div class="modal">
@@ -216,7 +210,6 @@
   </div>
 {/if}
 
-<!-- Update Menu Item Modal -->
 {#if showUpdateModal}
   <div class="modal-backdrop">
     <div class="modal">
@@ -235,7 +228,6 @@
   </div>
 {/if}
 
-<!-- Manage Users Modal -->
 {#if showUsersModal}
   <div class="modal-backdrop">
     <div class="modal">
@@ -255,7 +247,6 @@
   </div>
 {/if}
 
-<!-- Edit User Modal -->
 {#if showUserUpdateModal}
   <div class="modal-backdrop">
     <div class="modal">

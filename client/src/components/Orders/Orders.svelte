@@ -1,4 +1,3 @@
-<!-- src/components/Orders/Orders.svelte -->
 <script>
   import { onMount }            from 'svelte';
   import { navigate, useLocation } from 'svelte-routing';
@@ -20,7 +19,6 @@
     }
     const payload = JSON.parse(atob(token.split('.')[1]));
 
-    // 1) Finalize Stripe redirect
     if (sessionId) {
       const pending = localStorage.getItem('pending_order');
       if (pending) {
@@ -48,7 +46,6 @@
       }
     }
 
-    // 2) Load all orders
     try {
       const res = await fetch('http://localhost:8080/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -62,7 +59,6 @@
       loading = false;
     }
 
-    // 3) Socket setup
     const socket = io('http://localhost:8080', {
       withCredentials: true,
       auth: { token }
@@ -91,7 +87,6 @@
     });
   });
 
-  // Reorder a completed order
   async function reorder(order) {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -114,7 +109,6 @@
       }
       const { orderId } = await res.json();
       toast.success(`Reorder #${orderId} placed!`);
-      // Optionally reload orders or prepend
     } catch (err) {
       toast.error(err.message);
     }

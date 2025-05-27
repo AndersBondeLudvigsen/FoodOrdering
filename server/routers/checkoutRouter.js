@@ -10,12 +10,11 @@ router.post('/create-checkout-session', async (req, res) => {
     return res.status(400).json({ message: 'Cart is empty' });
   }
 
-  // Convert your cart items to Stripe line items:
   const line_items = items.map(({ id, name, price, quantity }) => ({
     price_data: {
       currency: 'dkk',
       product_data: { name },
-      unit_amount: Math.round(price * 100), // DKK → øre
+      unit_amount: Math.round(price * 100), 
     },
     quantity,
   }));
@@ -33,7 +32,6 @@ router.post('/create-checkout-session', async (req, res) => {
     });
     res.json({ url: session.url });
   } catch (err) {
-    console.error('Stripe checkout error:', err);
     res.status(500).json({ message: 'Could not create checkout session' });
   }
 });

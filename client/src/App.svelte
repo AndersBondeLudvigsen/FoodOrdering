@@ -1,26 +1,24 @@
-<!-- src/App.svelte -->
 <script>
   import { Router, Link, Route, navigate } from "svelte-routing";
-  import { token, user }                   from "./stores/auth.js";
+  import { token, user } from "./stores/auth.js";
+  import RequireRole from "./components/RoleCheck/RequireRole.svelte";
 
-  import MenuPage       from "./components/Pages/Menu.svelte";
-  import Login          from "./components/Login/Login.svelte";
-  import Signup         from "./components/Signup/Signup.svelte";
-  import Basket         from "./components/Basket/Basket.svelte";
-  import MyOrders       from "./components/Orders/Orders.svelte";
-  import Recommend      from "./components/Recommend/Recommend.svelte";
-  import Kitchen        from "./components/Kitchen/Kitchen.svelte";
-  import StockToggle    from "./components/Kitchen/StockToggle.svelte";
+  import MenuPage from "./components/Pages/Menu.svelte";
+  import Login from "./components/Login/Login.svelte";
+  import Signup from "./components/Signup/Signup.svelte";
+  import Basket from "./components/Basket/Basket.svelte";
+  import MyOrders from "./components/Orders/Orders.svelte";
+  import Recommend from "./components/Recommend/Recommend.svelte";
+  import Kitchen from "./components/Kitchen/Kitchen.svelte";
+  import StockToggle from "./components/Kitchen/StockToggle.svelte";
   import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
   import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
 
-  // log out clears the token & sends you to login
   function logout() {
     token.set(null);
     navigate("/login");
   }
 
-  // make role easy to check in the template
   $: role = $user?.role;
 </script>
 
@@ -44,7 +42,6 @@
         <Link to="/admin">Admin Dashboard</Link>
       {/if}
 
-      <!-- everyone who’s logged in can change password -->
       <button on:click={logout} style="margin-left:1rem">
         Log Out
       </button>
@@ -52,7 +49,6 @@
   {/if}
 
   <div style="padding:1rem">
-    <!-- Login/Signup always available as routes -->
     <Route path="/login">
       <Login />
     </Route>
@@ -60,43 +56,58 @@
       <Signup />
     </Route>
 
-    <!-- All the rest only if you’re logged in -->
-    {#if $token}
-      {#if role === 'customer'}
-        <Route path="/" exact>
-          <MenuPage />
-        </Route>
-        <Route path="/basket">
+    <Route path="/" exact>
+      {#if !$token}
+        <Login />
+      {:else if role === 'customer'}
+        <MenuPage />
+      {:else if role === 'kitchen'}
+        <Kitchen />
+      {:else if role === 'admin'}
+        <AdminDashboard />
+      {:else}
+        <Login /> 
+      {/if}
+    </Route>
+
+    {#if $token}      <Route path="/basket">
+        <RequireRole {role} allowed={['customer']} redirect="/" >
           <Basket />
-        </Route>
-        <Route path="/orders">
+        </RequireRole>
+      </Route>
+      <Route path="/orders">
+        <RequireRole {role} allowed={['customer']} redirect="/" >
           <MyOrders />
-        </Route>
-        <Route path="/recommend">
+        </RequireRole>
+      </Route>
+      <Route path="/recommend">
+        <RequireRole {role} allowed={['customer']} redirect="/" >
           <Recommend />
-        </Route>
-      {/if}
+        </RequireRole>
+      </Route>
 
-      {#if role === 'kitchen'}
-        <Route path="/kitchen">
+      <Route path="/kitchen">
+        <RequireRole {role} allowed={['kitchen']} redirect="/" >
           <Kitchen />
-        </Route>
-        <Route path="/kitchen/stock-toggle">
+        </RequireRole>
+      </Route>
+      <Route path="/kitchen/stock-toggle">
+        <RequireRole {role} allowed={['kitchen']} redirect="/" >
           <StockToggle />
-        </Route>
-      {/if}
+        </RequireRole>
+      </Route>
 
-      {#if role === 'admin'}
-        <Route path="/admin">
+      <Route path="/admin">
+        <RequireRole {role} allowed={['admin']} redirect="/" >
           <AdminDashboard />
-        </Route>
-      {/if}
+        </RequireRole>
+      </Route>
 
-      <!-- Change Password for everyone who’s logged in -->
       <Route path="/change-password">
-        <ChangePassword />
+        <RequireRole {role} allowed={['customer']} redirect="/" >
+          <ChangePassword />
+        </RequireRole>
       </Route>
     {/if}
-    
   </div>
 </Router>

@@ -1,4 +1,3 @@
-<!-- src/components/Login/Login.svelte -->
 <script>
   import { navigate } from 'svelte-routing';
   import * as toast   from '../../util/toast.js';
@@ -14,20 +13,17 @@
       const res = await fetch('http://localhost:8080/auth/login', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        // no credentials: we’re doing header-based auth
         body:    JSON.stringify({ email, password })
       });
 
       const body = await res.json();
       if (!res.ok) throw new Error(body.message || 'Login failed');
 
-      // 1) Store the JWT in localStorage
       localStorage.setItem('token', body.token);
       token.set(body.token);
 
       toast.success('Logged in successfully!');
 
-      // 2) Navigate to the protected menu page
       navigate('/');
     } catch (err) {
       toast.error(err.message);

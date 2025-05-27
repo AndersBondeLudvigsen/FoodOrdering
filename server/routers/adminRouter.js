@@ -1,13 +1,12 @@
-// server/routers/adminRouter.js
+import bcrypt from 'bcrypt';
 import { Router }       from 'express';
 import { query }        from '../database/connection.js';
 
+import { authenticate } from '../middleware/authenticate.js';
+
 const router = Router();
 
-// ── GET all menu items with ingredients ──────────────────────────────────────
-router.get(
-  '/menu-items',
-  async (req, res) => {
+router.get('/menu-items', async (req, res) => {
     try {
       const { rows } = await query(`
         SELECT
@@ -31,16 +30,12 @@ router.get(
       `);
       res.json(rows);
     } catch (err) {
-      console.error(err);
       res.status(500).json({ message: "Server error fetching menu items" });
     }
   }
 );
 
-// ── POST create a new menu item ─────────────────────────────────────────────
-router.post(
-  '/menu-items',
-  async (req, res) => {
+router.post('/menu-items', async (req, res) => {
     const {
       name,
       price,
@@ -55,7 +50,6 @@ router.post(
     }
 
     try {
-      // 1) Insert menu_item
       const { rows: miRows } = await query(
         `INSERT INTO menu_items (name, price, category, image_url, available)
          VALUES ($1,$2,$3,$4,$5)
@@ -64,23 +58,19 @@ router.post(
       );
       const menuItemId = miRows[0].id;
 
-      // 2) Upsert ingredients + join rows
       for (const ingName of ingredients) {
-        // insert ingredient if not exist
         await query(
           `INSERT INTO ingredients (name)
            VALUES ($1)
            ON CONFLICT (name) DO NOTHING`,
           [ingName]
         );
-        // find its id
         const { rows: ingRows } = await query(
           `SELECT id FROM ingredients WHERE name = $1`,
           [ingName]
         );
         const ingredientId = ingRows[0].id;
 
-        // link to menu_item
         await query(
           `INSERT INTO menu_item_ingredients (menu_item_id, ingredient_id)
            VALUES ($1,$2)`,
@@ -90,16 +80,12 @@ router.post(
 
       res.status(201).json({ menuItemId });
     } catch (err) {
-      console.error('Error creating menu item:', err);
       res.status(500).json({ message: 'Server error creating menu item' });
     }
   }
 );
 
-// ── PATCH update an existing menu item ──────────────────────────────────────
-router.patch(
-  '/menu-items/:id',
-  async (req, res) => {
+router.patch('/menu-items/:id', async (req, res) => {
     const itemId = Number(req.params.id);
     const {
       name,
@@ -111,7 +97,6 @@ router.patch(
     } = req.body;
 
     try {
-      // 1) Update core fields
       await query(
         `UPDATE menu_items
            SET name=$1, price=$2, category=$3, image_url=$4, available=$5
@@ -119,14 +104,12 @@ router.patch(
         [name, price, category, image_url, available, itemId]
       );
 
-      // 2) Remove old ingredient links
       await query(
         `DELETE FROM menu_item_ingredients
          WHERE menu_item_id = $1`,
         [itemId]
       );
 
-      // 3) Re-insert ingredient links
       for (const ingName of ingredients) {
         await query(
           `INSERT INTO ingredients (name)
@@ -149,16 +132,12 @@ router.patch(
 
       res.json({ message: 'Updated' });
     } catch (err) {
-      console.error('Error updating menu item:', err);
       res.status(500).json({ message: 'Server error updating menu item' });
     }
   }
 );
 
-// ── DELETE a menu item ──────────────────────────────────────────────────────
-router.delete(
-  '/menu-items/:id',
-  async (req, res) => {
+router.delete('/menu-items/:id', async (req, res) => {
     const itemId = Number(req.params.id);
     try {
       await query(
@@ -167,16 +146,13 @@ router.delete(
       );
       res.json({ message: 'Deleted' });
     } catch (err) {
-      console.error('Error deleting menu item:', err);
       res.status(500).json({ message: 'Server error deleting menu item' });
     }
   }
 );
 
 
-router.get(
-  '/users',
-  async (req, res) => {
+router.get('/users', async (req, res) => {
     try {
       const { rows } = await query(`
         SELECT id, username, email, role
@@ -185,27 +161,19 @@ router.get(
       `);
       res.json(rows);
     } catch (err) {
-      console.error('Admin GET /users error:', err);
       res.status(500).json({ message: 'Server error fetching users' });
     }
   }
 );
 
-// ——————————————————————————————————————————————
-// PATCH update a user’s role
-// ——————————————————————————————————————————————
-router.patch(
-  '/users/:id',
-  async (req, res) => {
+router.patch('/users/:id', async (req, res) => {
     const userId = Number(req.params.id);
     const { username, email, role, password } = req.body;
 
-    // Validate role if provided
     if (role && !['customer', 'admin'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role' });
     }
 
-    // Collect fields to update
     const sets = [];
     const values = [];
     let idx = 1;
@@ -235,7 +203,6 @@ router.patch(
       return res.status(400).json({ message: 'No fields to update' });
     }
 
-    // Build and run the UPDATE query
     const sql = `
       UPDATE users
          SET ${sets.join(', ')}
@@ -253,11 +220,9 @@ router.patch(
 
       return res.json(result.rows[0]);
     } catch (err) {
-      // Handle unique violation on email
       if (err.code === '23505' && err.constraint === 'users_email_key') {
         return res.status(400).json({ message: 'Email already in use' });
       }
-      console.error('Admin PATCH /users/:id error:', err);
       return res.status(500).json({ message: 'Server error updating user' });
     }
   }

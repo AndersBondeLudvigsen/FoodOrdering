@@ -56,7 +56,6 @@
       }
     }
   
-    // listen for remote updates
     const socket = io('http://localhost:8080', {
       withCredentials: true,
       auth: { token: localStorage.getItem('token') }

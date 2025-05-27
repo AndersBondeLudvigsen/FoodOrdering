@@ -1,4 +1,3 @@
-<!-- src/components/Kitchen/Kitchen.svelte -->
 <script>
   import { onMount } from 'svelte';
   import { io }      from 'socket.io-client';
@@ -8,7 +7,6 @@
   let loading    = true;
   const statuses = ['pending','in making','ready'];
 
-  // Fetch up‐to‐“ready” orders
   async function loadOrders() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -31,7 +29,6 @@
     }));
   }
 
-  // Advance an order’s status
   async function toggleStatus(order) {
     const idx  = statuses.indexOf(order.status);
     if (idx < 0 || idx === statuses.length - 1) return;
@@ -58,7 +55,6 @@
     }
   }
 
-  // Cancel an order
   async function cancelOrder(order) {
     const token = localStorage.getItem('token');
     try {
@@ -91,7 +87,6 @@
       auth: { token }
     });
 
-    // New orders
     socket.on("new-order", order => {
       liveOrders = [
         {
@@ -105,7 +100,6 @@
       toast.info(`New order #${order.orderId}`);
     });
 
-    // Status changes
     socket.on("order-status-update", ({ orderId, status }) => {
       const o = liveOrders.find(o => o.id === orderId);
       if (o) {
@@ -122,7 +116,6 @@
   <p>Loading orders…</p>
 {:else}
   <div class="orders-board">
-    <!-- Pending / Cancelled -->
     <section class="column">
       <h2>Pending / Cancelled</h2>
       {#each liveOrders.filter(o => o.status === 'pending' || o.status === 'cancelled') as o}
@@ -151,7 +144,6 @@
       {/each}
     </section>
 
-    <!-- In Making -->
     <section class="column">
       <h2>In Making</h2>
       {#each liveOrders.filter(o => o.status === 'in making') as o}
@@ -180,7 +172,6 @@
       {/each}
     </section>
 
-    <!-- Ready to Pick Up -->
     <section class="column">
       <h2>Ready to Pick Up</h2>
       {#each liveOrders.filter(o => o.status === 'ready') as o}
@@ -198,7 +189,6 @@
             {/each}
           </ul>
           <div class="actions">
-            <!-- no Next or Cancel here, kitchen is done -->
           </div>
         </div>
       {/each}

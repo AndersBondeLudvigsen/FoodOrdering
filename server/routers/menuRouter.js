@@ -1,4 +1,3 @@
-// src/routes/menuRouter.js
 import { Router } from 'express';
 import { query }  from '../database/connection.js';
 
@@ -29,7 +28,6 @@ router.get('/', async (req, res) => {
           `);
     res.json(rows);
   } catch (err) {
-    console.error('Error loading menu:', err);
     res.status(500).json({ message: 'Server error loading menu' });
   }
 });
@@ -61,7 +59,6 @@ router.get('/:id', async (req, res) => {
     }
     res.json(rows[0]);
   } catch (err) {
-    console.error('Error fetching menu item:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

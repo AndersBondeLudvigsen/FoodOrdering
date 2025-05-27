@@ -1,4 +1,3 @@
-// src/routes/recommend.js
 import { Router } from 'express';
 import fetch       from 'node-fetch';
 import { query }   from '../database/connection.js';
@@ -16,7 +15,6 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // 1) Fetch live menu with normalized ingredients
     const { rows: menuItems } = await query(`
       SELECT
         mi.name,
@@ -34,7 +32,6 @@ router.post('/', async (req, res) => {
       ORDER BY mi.id
     `);
 
-    // 2) Build prompt text
     const menuText = menuItems
       .map(m => `- ${m.name} (${m.ingredients.join(', ')})`)
       .join('\n');
@@ -52,7 +49,6 @@ Suggest up to 5 dishes from the above list, formatted as a JSON array:
 ]
     `.trim();
 
-    // 3) Call the chat endpoint
     const apiRes = await fetch(CHAT_URL, {
       method: 'POST',
       headers: {
@@ -70,14 +66,10 @@ Suggest up to 5 dishes from the above list, formatted as a JSON array:
     });
 
     if (!apiRes.ok) {
-      const errText = await apiRes.text();
-      console.error(`Mistral HTTP ${apiRes.status}:`, errText);
       return res.status(502).json({ message: 'AI service error' });
     }
 
-    // 4) Parse the JSON response
     const apiJson = await apiRes.json();
-    console.log('Mistral chat response:', JSON.stringify(apiJson, null, 2));
 
     const rawText = apiJson.choices[0].message?.content
       ?? apiJson.choices[0].content;
@@ -92,7 +84,6 @@ Suggest up to 5 dishes from the above list, formatted as a JSON array:
     return res.json(recommendations);
 
   } catch (err) {
-    console.error('Recommendation error:', err);
     return res.status(500).json({ message: 'Recommendation failed' });
   }
 });

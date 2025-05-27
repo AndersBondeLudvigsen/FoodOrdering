@@ -1,6 +1,4 @@
-<!-- src/components/Pages/Recommend.svelte -->
 <script>
-    import { onMount }   from 'svelte';
     import { navigate }   from 'svelte-routing';
     import * as toast     from '../../util/toast.js';
   

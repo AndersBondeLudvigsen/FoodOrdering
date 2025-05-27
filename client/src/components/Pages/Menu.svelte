@@ -1,4 +1,3 @@
-<!-- src/components/Pages/Menu.svelte -->
 <script>
   import { onMount } from 'svelte';
   import { navigate } from 'svelte-routing';
@@ -30,7 +29,6 @@
 
       menu = await res.json();
 
-      // Derive unique categories (fall back to "Uncategorized")
       const cats = menu
         .map(i => i.category || 'Uncategorized')
         .filter(Boolean);
