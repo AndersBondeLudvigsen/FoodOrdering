@@ -13,6 +13,8 @@
   import StockToggle from "./components/Kitchen/StockToggle.svelte";
   import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
   import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
+  import SalesDashBoard from "./components/Admin/SalesDashBoard.svelte";
+
 
   function logout() {
     token.set(null);
@@ -40,6 +42,7 @@
 
       {#if role === 'admin'}
         <Link to="/admin">Admin Dashboard</Link>
+        <Link to="/admin/sales"> Sales</Link>
       {/if}
 
       <button on:click={logout} style="margin-left:1rem">
@@ -100,6 +103,13 @@
       <Route path="/admin">
         <RequireRole {role} allowed={['admin']} redirect="/" >
           <AdminDashboard />
+        </RequireRole>
+      </Route>
+
+
+       <Route path="/admin/sales">
+        <RequireRole {role} allowed={['admin']} redirect="/" >
+          <SalesDashBoard />
         </RequireRole>
       </Route>
 

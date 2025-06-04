@@ -226,4 +226,65 @@ router.patch('/users/:id', async (req, res) => {
   }
 );
 
+router.get('/sales', async (req, res) => {
+    try {
+      // 1) Daily sales totals (last 30 days)
+      const { rows: dailyRows } = await query(`
+        SELECT
+          date_trunc('day', o.created_at) AS day,
+          SUM(mi.price * oi.quantity)::NUMERIC(10,2) AS total_sales
+        FROM orders o
+        JOIN order_items oi
+          ON oi.order_id = o.id
+        JOIN menu_items mi
+          ON mi.id = oi.menu_item_id
+        WHERE o.created_at >= NOW() - INTERVAL '30 days'
+          AND o.status != 'cancelled'
+        GROUP BY date_trunc('day', o.created_at)
+        ORDER BY day;
+      `);
+
+      // 2) Top 5 selling items (by total quantity) in last 30 days
+      const { rows: topItemsRows } = await query(`
+        SELECT
+          mi.id,
+          mi.name,
+          SUM(oi.quantity) AS total_quantity
+        FROM order_items oi
+        JOIN orders o
+          ON o.id = oi.order_id
+        JOIN menu_items mi
+          ON mi.id = oi.menu_item_id
+        WHERE o.created_at >= NOW() - INTERVAL '30 days'
+          AND o.status != 'cancelled'
+        GROUP BY mi.id, mi.name
+        ORDER BY SUM(oi.quantity) DESC
+        LIMIT 5;
+      `);
+
+      // 3) Peak hours (count of orders by hour of day) for last week
+      const { rows: hourlyRows } = await query(`
+        SELECT
+          extract(hour from o.created_at) AS hour,
+          COUNT(*) AS order_count
+        FROM orders o
+        WHERE o.created_at >= NOW() - INTERVAL '7 days'
+          AND o.status != 'cancelled'
+        GROUP BY extract(hour from o.created_at)
+        ORDER BY hour;
+      `);
+
+      return res.json({
+        daily: dailyRows,      // [{ day, total_sales }, …]
+        topItems: topItemsRows, // [{ id, name, total_quantity }, …]
+        hourly: hourlyRows     // [{ hour, order_count }, …]
+      });
+    } catch (err) {
+      console.error('Admin GET /sales error:', err);
+      res.status(500).json({ message: 'Server error fetching sales data' });
+    }
+  }
+);
+
+
 export default router;
