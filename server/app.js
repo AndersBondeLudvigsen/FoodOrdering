@@ -8,8 +8,9 @@ import menuRouter     from './routers/menuRouter.js';
 import ordersRouter   from './routers/ordersRouter.js';  
 import recommend      from './routers/recommend.js';
 import checkoutRouter from './routers/checkoutRouter.js';
-import kitchenRouter  from './routers/kitchenRouter.js'
-import adminRouter    from './routers/adminRouter.js'
+import kitchenRouter  from './routers/kitchenRouter.js';
+import adminRouter    from './routers/adminRouter.js';
+import favoritsRouter from'./routers/favoritesRouter.js';
 
 import { isKitchen } from './middleware/isKitchen.js';
 import { authenticate } from './middleware/authenticate.js';
@@ -29,6 +30,7 @@ app.use('/auth',    authRouter);
 app.use(authenticate)
 app.use('/menu',    menuRouter);
 app.use('/recommend',recommend);
+app.use('/favorites', favoritsRouter)
 app.use('/checkout',checkoutRouter);
 app.use('/admin', isAdmin, adminRouter);
 

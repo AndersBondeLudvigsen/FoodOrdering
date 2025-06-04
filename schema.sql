@@ -47,3 +47,14 @@ CREATE TABLE IF NOT EXISTS order_items (
     REFERENCES menu_items(id),
   quantity      INTEGER NOT NULL DEFAULT 1
 );
+
+CREATE TABLE IF NOT EXISTS favorites (
+  user_id      INTEGER NOT NULL
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+  menu_item_id INTEGER NOT NULL
+    REFERENCES menu_items(id)
+    ON DELETE CASCADE,
+  PRIMARY KEY (user_id, menu_item_id)
+);
+

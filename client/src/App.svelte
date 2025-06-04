@@ -14,6 +14,7 @@
   import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
   import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
   import SalesDashBoard from "./components/Admin/SalesDashBoard.svelte";
+  import Favorites from "./components/Favorites/Favorites.svelte";
 
 
   function logout() {
@@ -33,6 +34,8 @@
         <Link to="/orders">My Orders</Link>
         <Link to="/recommend">Recommend</Link>
         <Link to="/change-password">Change Password</Link>
+        <Link to="/favorites">Favorites</Link>
+
       {/if}
 
       {#if role === 'kitchen'}
@@ -86,6 +89,12 @@
       <Route path="/recommend">
         <RequireRole {role} allowed={['customer']} redirect="/" >
           <Recommend />
+        </RequireRole>
+      </Route>
+
+        <Route path="/favorites">
+        <RequireRole {role} allowed={['customer']} redirect="/" >
+          <Favorites/>
         </RequireRole>
       </Route>
 

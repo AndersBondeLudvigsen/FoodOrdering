@@ -1,24 +1,25 @@
 <script>
   import { onMount } from 'svelte';
   import { navigate } from 'svelte-routing';
-  import * as toast   from '../../util/toast.js';
-  import { cart }     from '../../stores/cart.js';
+  import * as toast from '../../util/toast.js';
+  import { cart } from '../../stores/cart.js';
+  import { favorites, toggleFavorite, loadFavorites } from '../../stores/favorites.js';
 
-  let menu        = [];
-  let loading     = true;
-  let categories  = [];
+  let menu = [];
+  let loading = true;
+  let categories = [];
   let selectedCat = 'All';
-  let searchTerm  = '';
+  let searchTerm = '';
 
   onMount(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Not logged in');
 
+      // Fetch menu items
       const res = await fetch('http://localhost:8080/menu', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
-
       if (res.status === 401) {
         toast.error('Session expired, please log in again');
         return navigate('/login');
@@ -26,13 +27,14 @@
       if (!res.ok) {
         throw new Error('Failed to load menu');
       }
-
       menu = await res.json();
 
-      const cats = menu
-        .map(i => i.category || 'Uncategorized')
-        .filter(Boolean);
+      // Build category list
+      const cats = menu.map(i => i.category || 'Uncategorized').filter(Boolean);
       categories = ['All', ...Array.from(new Set(cats))];
+
+      // Load existing favorites for the user
+      await loadFavorites();
     } catch (err) {
       toast.error(err.message);
       navigate('/login');
@@ -40,7 +42,6 @@
       loading = false;
     }
   });
-
 
   function addToCart(item) {
     cart.update(current => {
@@ -90,6 +91,17 @@
            && item.name.toLowerCase().includes(searchTerm.toLowerCase())
          ) as item}
         <div class="menu-card">
+          <!-- Star button: filled if in favorites, outline otherwise -->
+          {#if $favorites.includes(item.id)}
+            <button class="star-button" on:click={() => toggleFavorite(item.id)}>
+              <span class="star filled">★</span>
+            </button>
+          {:else}
+            <button class="star-button" on:click={() => toggleFavorite(item.id)}>
+              <span class="star outline">☆</span>
+            </button>
+          {/if}
+
           <img src={item.image_url} alt={item.name} class="thumb" />
           <h2>{item.name}</h2>
           <p><strong>Price:</strong> {item.price} DKK</p>
@@ -123,26 +135,14 @@
 {/if}
 
 <style>
-  .logout-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  .logout-btn:hover {
-    background: #c0392b;
-  }
-
   .controls {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1rem;
   }
-  .filter-label, .search-label {
+  .filter-label,
+  .search-label {
     font-weight: bold;
   }
   .filter-label select,
@@ -156,7 +156,9 @@
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1.5rem;
   }
+
   .menu-card {
+    position: relative;
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 1rem;
@@ -165,13 +167,20 @@
     flex-direction: column;
     align-items: center;
   }
+
   .thumb {
     width: 100%;
     border-radius: 4px;
     margin-bottom: 0.5rem;
   }
-  .in-stock { color: green; }
-  .sold-out { color: red; }
+
+  .in-stock {
+    color: green;
+  }
+  .sold-out {
+    color: red;
+  }
+
   details {
     margin-top: 0.5rem;
     width: 100%;
@@ -188,6 +197,7 @@
     list-style: disc;
     font-size: 0.9em;
   }
+
   .add-btn {
     margin-top: auto;
     padding: 0.5rem 1rem;
@@ -203,5 +213,27 @@
   }
   .add-btn:hover:enabled {
     background: #1e874b;
+  }
+
+  /* Star button styles */
+  .star-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0;
+  }
+  .star {
+    pointer-events: none;
+  }
+  .star.filled {
+    color: gold;
+  }
+  .star.outline {
+    color: gray;
   }
 </style>
