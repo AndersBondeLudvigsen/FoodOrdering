@@ -10,7 +10,8 @@ import recommend      from './routers/recommend.js';
 import checkoutRouter from './routers/checkoutRouter.js';
 import kitchenRouter  from './routers/kitchenRouter.js';
 import adminRouter    from './routers/adminRouter.js';
-import favoritsRouter from'./routers/favoritesRouter.js';
+import favoritsRouter from './routers/favoritesRouter.js';
+import nutriRouter    from './routers/nutriRouter.js'
 
 import { isKitchen } from './middleware/isKitchen.js';
 import { authenticate } from './middleware/authenticate.js';
@@ -28,11 +29,13 @@ app.use(cookieParser());
 app.use('/auth',    authRouter);
 
 app.use(authenticate)
+app.use('/nutri', nutriRouter);
 app.use('/menu',    menuRouter);
 app.use('/recommend',recommend);
 app.use('/favorites', favoritsRouter)
 app.use('/checkout',checkoutRouter);
 app.use('/admin', isAdmin, adminRouter);
+
 
 const io = initSocket(server);
 

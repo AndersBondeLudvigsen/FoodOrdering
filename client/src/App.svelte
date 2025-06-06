@@ -76,7 +76,8 @@
       {/if}
     </Route>
 
-    {#if $token}      <Route path="/basket">
+    {#if $token} 
+         <Route path="/basket">
         <RequireRole {role} allowed={['customer']} redirect="/" >
           <Basket />
         </RequireRole>

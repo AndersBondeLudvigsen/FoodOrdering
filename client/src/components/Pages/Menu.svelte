@@ -5,6 +5,10 @@
   import { cart } from '../../stores/cart.js';
   import { favorites, toggleFavorite, loadFavorites } from '../../stores/favorites.js';
 
+
+  import Nutri from './Nutri.svelte';
+
+
   let menu = [];
   let loading = true;
   let categories = [];
@@ -111,14 +115,17 @@
               {item.available ? 'In Stock' : 'Sold Out'}
             </span>
           </p>
-          <details>
-            <summary>Ingredients</summary>
-            <ul>
-              {#each item.ingredients as ing}
-                <li>{ing}</li>
-              {/each}
-            </ul>
-          </details>
+       <details>
+  <summary>Ingredients</summary>
+  <ul>
+    {#each item.ingredients as ing}
+      <li>{ing}</li>
+    {/each}
+  </ul>
+
+  <!-- Her kalder vi Nutri med menu_item id -->
+  <Nutri id={item.id} />
+</details>
           {#if item.available}
             <button class="add-btn" on:click={() => addToCart(item)}>
               Add to Basket

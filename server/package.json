@@ -10,11 +10,12 @@
     "nodemailer": "^7.0.2",
     "pg": "^8.15.6",
     "socket.io": "^4.8.1",
-    "stripe": "^18.1.0"
+    "stripe": "^18.1.0",
+    "twilio": "^5.7.0"
   },
   "type": "module",
-  "scripts": { 
+  "scripts": {
     "clear-db": "node database/clearDb.js",
-    "seed-db": "node database/seedDb.js"}
-  
+    "seed-db": "node database/seedDb.js"
+  }
 }
