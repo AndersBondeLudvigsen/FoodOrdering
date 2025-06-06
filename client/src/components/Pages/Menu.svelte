@@ -1,3 +1,4 @@
+<!-- src/components/Pages/Menu.svelte -->
 <script>
   import { onMount } from 'svelte';
   import { navigate } from 'svelte-routing';
@@ -5,9 +6,7 @@
   import { cart } from '../../stores/cart.js';
   import { favorites, toggleFavorite, loadFavorites } from '../../stores/favorites.js';
 
-
   import Nutri from './Nutri.svelte';
-
 
   let menu = [];
   let loading = true;
@@ -15,12 +14,14 @@
   let selectedCat = 'All';
   let searchTerm = '';
 
+  let excluded = [];        
+  let newAllergy = '';     
+
   onMount(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Not logged in');
 
-      // Fetch menu items
       const res = await fetch('http://localhost:8080/menu', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -33,11 +34,11 @@
       }
       menu = await res.json();
 
-      // Build category list
-      const cats = menu.map(i => i.category || 'Uncategorized').filter(Boolean);
+      const cats = menu
+        .map(i => i.category || 'Uncategorized')
+        .filter(Boolean);
       categories = ['All', ...Array.from(new Set(cats))];
 
-      // Load existing favorites for the user
       await loadFavorites();
     } catch (err) {
       toast.error(err.message);
@@ -59,6 +60,29 @@
     });
     toast.success(`${item.name} added to basket`);
   }
+
+  function addAllergy() {
+    const trimmed = newAllergy.trim().toLowerCase();
+    if (trimmed && !excluded.includes(trimmed)) {
+      excluded = [...excluded, trimmed];
+    }
+    newAllergy = '';
+  }
+
+  function removeAllergy(ing) {
+    excluded = excluded.filter(x => x !== ing);
+  }
+
+   function isSafe(item) {
+   if (!item.ingredients || !Array.isArray(item.ingredients))
+    return true;
+   const lowerIngredients = item.ingredients.map(i => i.toLowerCase());
+   return excluded.every(allergen => {
+     const escaped = allergen.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+     const re = new RegExp(`\\b${escaped}\\b`);
+     return !lowerIngredients.some(ingLine => re.test(ingLine));
+   });
+ }
 </script>
 
 <h1>Our Menu</h1>
@@ -69,6 +93,33 @@
   {#if menu.length === 0}
     <p>No items available right now.</p>
   {:else}
+    <div class="allergy-controls">
+      <label>
+        Allergic to:
+        <input
+          type="text"
+          placeholder="e.g. peanuts"
+          bind:value={newAllergy}
+          on:keydown={(e) => e.key === 'Enter' && addAllergy()}
+        />
+      </label>
+      <button on:click={addAllergy} disabled={!newAllergy.trim()}>
+        Add
+      </button>
+    </div>
+
+    {#if excluded.length}
+      <div class="excluded-list">
+        <p><strong>Excluding:</strong></p>
+        {#each excluded as ing}
+          <span class="excluded-item">
+            {ing}
+            <button class="remove-btn" on:click={() => removeAllergy(ing)}>✕</button>
+          </span>
+        {/each}
+      </div>
+    {/if}
+
     <div class="controls">
       <label class="filter-label">
         Filter by category:
@@ -93,9 +144,9 @@
          .filter(item =>
            (selectedCat === 'All' || (item.category || 'Uncategorized') === selectedCat)
            && item.name.toLowerCase().includes(searchTerm.toLowerCase())
+           && isSafe(item)
          ) as item}
         <div class="menu-card">
-          <!-- Star button: filled if in favorites, outline otherwise -->
           {#if $favorites.includes(item.id)}
             <button class="star-button" on:click={() => toggleFavorite(item.id)}>
               <span class="star filled">★</span>
@@ -115,17 +166,15 @@
               {item.available ? 'In Stock' : 'Sold Out'}
             </span>
           </p>
-       <details>
-  <summary>Ingredients</summary>
-  <ul>
-    {#each item.ingredients as ing}
-      <li>{ing}</li>
-    {/each}
-  </ul>
-
-  <!-- Her kalder vi Nutri med menu_item id -->
-  <Nutri id={item.id} />
-</details>
+          <details>
+            <summary>Ingredients</summary>
+            <ul>
+              {#each item.ingredients as ing}
+                <li>{ing}</li>
+              {/each}
+            </ul>
+            <Nutri id={item.id} />
+          </details>
           {#if item.available}
             <button class="add-btn" on:click={() => addToCart(item)}>
               Add to Basket
@@ -142,6 +191,50 @@
 {/if}
 
 <style>
+  .allergy-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .allergy-controls input {
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+  }
+  .allergy-controls button {
+    padding: 0.25rem 0.5rem;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .allergy-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .excluded-list {
+    margin-bottom: 1rem;
+  }
+  .excluded-item {
+    display: inline-flex;
+    align-items: center;
+    background: #fed7d7;
+    color: #742a2a;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .remove-btn {
+    background: none;
+    border: none;
+    margin-left: 0.25rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
   .controls {
     display: flex;
     flex-wrap: wrap;

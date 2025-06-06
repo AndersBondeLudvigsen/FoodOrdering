@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import fetch       from 'node-fetch';
-import { query }   from '../database/connection.js';
+import fetch        from 'node-fetch';
+import { query }    from '../database/connection.js';
 
 const router   = Router();
 const CHAT_URL = 'https://api.mistral.ai/v1/chat/completions';
@@ -17,7 +17,11 @@ router.post('/', async (req, res) => {
   try {
     const { rows: menuItems } = await query(`
       SELECT
+        mi.id,
         mi.name,
+        mi.image_url,
+        mi.price,      -- <--- ADDED: Select the price
+        mi.available,  -- <--- ADDED: Select the 'available' status
         COALESCE(
           json_agg(i.name) FILTER (WHERE i.id IS NOT NULL),
           '[]'
@@ -28,9 +32,19 @@ router.post('/', async (req, res) => {
       LEFT JOIN ingredients i
         ON i.id = mii.ingredient_id
       WHERE mi.available = true
-      GROUP BY mi.id
+      GROUP BY mi.id, mi.name, mi.image_url, mi.price, mi.available -- <--- ADDED: Group by price and available
       ORDER BY mi.id
     `);
+
+    const menuDetailsMap = new Map();
+    menuItems.forEach(item => {
+      menuDetailsMap.set(item.name, {
+        id: item.id,
+        image_url: item.image_url,
+        price: item.price,        
+        available: item.available 
+      });
+    });
 
     const menuText = menuItems
       .map(m => `- ${m.name} (${m.ingredients.join(', ')})`)
@@ -79,11 +93,34 @@ Suggest up to 5 dishes from the above list, formatted as a JSON array:
     }
 
     const text = rawText.trim();
-    const recommendations = JSON.parse(text);
+    let recommendations = JSON.parse(text);
 
-    return res.json(recommendations);
+    const finalRecommendations = recommendations.map(rec => {
+        const details = menuDetailsMap.get(rec.name);
+        if (details) {
+            return {
+                id: details.id,
+                name: rec.name,
+                why: rec.why,
+                image_url: details.image_url,
+                price: details.price,       
+                available: details.available 
+            };
+        }
+        return {
+            id: null,
+            name: rec.name,
+            why: rec.why,
+            image_url: null,
+            price: null,        
+            available: false    
+        };
+    });
+
+    return res.json(finalRecommendations);
 
   } catch (err) {
+    console.error('Recommendation failed:', err);
     return res.status(500).json({ message: 'Recommendation failed' });
   }
 });
