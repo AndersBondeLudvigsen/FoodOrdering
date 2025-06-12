@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    return res.json({
+    return res.send({
       token,
       role: user.role
     });
@@ -116,7 +116,7 @@ router.patch('/change-password', authenticate, async (req, res) => {
         [newHash, userId]
       );
 
-      return res.json({ message: 'Password updated' });
+      return res.send({ message: 'Password updated' });
     } catch (err) {
       return res.status(500).json({ message: 'Server error' });
     }

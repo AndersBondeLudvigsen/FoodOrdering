@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
        WHERE f.user_id = $1`,
       [userId]
     );
-    res.json(result.rows);
+    res.send(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch favorites' });
@@ -53,7 +53,7 @@ router.delete('/:menuItemId', async (req, res) => {
        WHERE user_id = $1 AND menu_item_id = $2`,
       [userId, menuItemId]
     );
-    res.json({ success: true });
+    res.send({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to remove favorite' });

@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
       `
     );
 
-    return res.json(rows);
+    return res.send(rows);
   } catch (err) {
     return res.status(500).json({ message: 'Server error loading pending orders' });
   }
@@ -68,7 +68,7 @@ router.patch('/:id/status', async (req, res) => {
     io.to(`user_${order.user_id}`).emit('your-order-status', { orderId, status });
     
 
-    return res.json({ orderId, status });
+    return res.send({ orderId, status });
   } catch (err) {
     return res.status(500).json({ message: 'Server error updating order status' });
   }
@@ -93,7 +93,7 @@ router.patch('/:id/cancel', async (req, res) => {
     io.emit('order-status-update', { orderId, status, userId });
     io.to(`user_${userId}`).emit('your-order-status', { orderId, status });
 
-    return res.json({ orderId, status });
+    return res.send({ orderId, status });
   } catch (err) {
     return res.status(500).json({ message: 'Server error cancelling order' });
   }
@@ -127,7 +127,7 @@ router.patch('/menu-items/:id/availability', async (req, res) => {
       available: updated.available
     });
 
-    return res.json(updated);
+    return res.send(updated);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

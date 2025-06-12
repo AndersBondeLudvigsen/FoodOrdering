@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
       [userId]
     );
 
-    return res.json(rows);
+    return res.send(rows);
   } catch (err) {
     return res.status(500).json({ message: 'Server error loading orders' });
   }

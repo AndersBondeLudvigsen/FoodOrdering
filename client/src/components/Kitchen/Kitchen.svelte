@@ -3,6 +3,8 @@
   import { io }      from 'socket.io-client';
   import * as toast  from '../../util/toast.js';
 
+  import "../../styels/kitchenpage.css"
+
   let liveOrders = [];
   let loading    = true;
   const statuses = ['pending','in making','ready'];
@@ -195,87 +197,3 @@
     </section>
   </div>
 {/if}
-
-<style>
-  .orders-board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .column {
-    background: #f9f9f9;
-    border-radius: 6px;
-    padding: 0.5rem;
-  }
-  .column h2 {
-    text-align: center;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-  }
-
-  .order-card {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-  .order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.5rem;
-  }
-  .order-header time {
-    margin-left: 0.5rem;
-    font-size: 0.85em;
-    color: #555;
-  }
-
-  .status {
-    padding: 0.2em 0.4em;
-    border-radius: 4px;
-    font-size: 0.8em;
-    text-transform: capitalize;
-    color: white;
-  }
-  .status.pending    { background: orange; }
-  .status.cancelled  { background: #e53e3e; }
-  .status.in-making  { background: #3182ce; }
-  .status.ready      { background: #38a169; }
-
-  .order-items {
-    margin: 0.5rem 0;
-    padding-left: 1rem;
-  }
-  .order-items li {
-    margin: 0.25rem 0;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-  .actions button {
-    flex: 1;
-    padding: 0.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .actions button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .actions button:nth-child(1) {
-    background: #3182ce;
-    color: white;
-  }
-  .actions button:nth-child(2) {
-    background: #e53e3e;
-    color: white;
-  }
-</style>

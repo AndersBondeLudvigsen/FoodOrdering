@@ -1,7 +1,10 @@
-<!-- client/src/routes/favorites.svelte -->
 <script>
   import { onMount } from 'svelte';
   import { favorites, toggleFavorite } from '../../stores/favorites.js';
+  import { cart } from '../../stores/cart.js';
+  import * as toast from '../../util/toast.js';
+
+  import "../../styels/favorites.css"
 
   let starredIds = [];
   favorites.subscribe(ids => (starredIds = ids));
@@ -32,6 +35,20 @@
   // When the user clicks the star, this will un‐favorite on the backend & update the store:
   function handleUnfavorite(itemId) {
     toggleFavorite(itemId);
+  }
+
+
+   function addToCart(item) {
+    cart.update(current => {
+      const idx = current.findIndex(i => i.id === item.id);
+      if (idx > -1) {
+        current[idx].quantity += 1;
+        return current;
+      } else {
+        return [...current, { id: item.id, name: item.name, price: item.price, quantity: 1 }];
+      }
+    });
+    toast.success(`${item.name} added to basket`);
   }
 </script>
 
@@ -66,9 +83,10 @@
           </ul>
         </details>
         {#if item.available}
-          <button class="add-btn" on:click={() => {/* your addToCart logic if desired */}}>
-            Add to Basket
-          </button>
+          <button class="add-btn" on:click={() => addToCart(item)}>
+  Add to Basket
+</button>
+
         {:else}
           <button class="add-btn" disabled>
             Sold Out
@@ -78,81 +96,3 @@
     {/each}
   </div>
 {/if}
-
-<style>
-  .favorites-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
-  }
-
-  .menu-card {
-    position: relative;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .thumb {
-    width: 100%;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-  }
-
-  .in-stock { color: green; }
-  .sold-out { color: red; }
-
-  details {
-    margin-top: 0.5rem;
-    width: 100%;
-  }
-  summary {
-    cursor: pointer;
-    font-weight: bold;
-  }
-  details ul {
-    padding-left: 1rem;
-    margin: 0.5rem 0 0;
-  }
-  details li {
-    list-style: disc;
-    font-size: 0.9em;
-  }
-
-  .add-btn {
-    margin-top: auto;
-    padding: 0.5rem 1rem;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .add-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
-  .add-btn:hover:enabled {
-    background: #1e874b;
-  }
-
-  /* Star button in top-right */
-  .star-button {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    line-height: 1;
-    padding: 0;
-  }
-  .star.filled {
-    color: gold;
-  }
-</style>

@@ -1,5 +1,4 @@
 // server/utils/nutrClient.js
-import fetch from 'node-fetch';
 import 'dotenv/config';
 
 const APP_ID  = process.env.NUTRITIONIX_APP_ID;

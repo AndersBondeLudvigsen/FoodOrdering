@@ -1,0 +1,55 @@
+.admin-actions .admin-btn {
+  background-color: #3b82f6; /* Blue */
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-actions .btn:hover {
+  background-color: #2563eb; /* Darker Blue */
+}
+.admin-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Make sure it's above nav */
+  pointer-events: all;
+}
+
+.admin-modal {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  pointer-events: auto;
+  z-index: 10000; /* Higher than backdrop just in case */
+}
+
+  .admin-label {
+    display: block;
+    margin-top: 0.75rem;
+  }
+  .admin-input, select {
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+  .admin-modal-actions {
+    margin-top: 1rem;
+    text-align: right;
+  }
+  .admin-.modal-actions button {
+    margin-left: 0.5rem;
+  }

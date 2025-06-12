@@ -1,7 +1,11 @@
 <script>
-  import { onMount } from 'svelte';
+  
   import { token }    from '../../stores/auth.js';
   import * as toast   from '../../util/toast.js';
+
+  import "../../styels/adminDashboard.css"
+
+
 
   let showCreateModal = false;
   let createForm = { name: '', price: 0, category: '', image_url: '', available: true, ingredientsText: '' };
@@ -106,6 +110,19 @@
       }
       toast.success('Menu item updated');
       showUpdateModal = false;
+      const index = items.findIndex(i => i.id === updateForm.id);
+if (index !== -1) {
+  items[index] = {
+    ...items[index],
+    name: updateForm.name,
+    price: +updateForm.price,
+    category: updateForm.category,
+    image_url: updateForm.image_url,
+    available: updateForm.available,
+    ingredients
+  };
+  items = [...items]; // trigger reactivity
+}
     } catch(err){
       toast.error(err.message);
     }
@@ -163,18 +180,26 @@
       toast.error(err.message);
     }
   }
+
+
+  $: {
+  const anyModalOpen = showCreateModal || showDeleteModal || showUpdateModal || showUsersModal || showUserUpdateModal;
+  if (typeof window !== 'undefined') {
+    document.body.classList.toggle('modal-open', anyModalOpen);
+  }
+}
+
 </script>
 
 <h1>Admin Dashboard</h1>
-<div class="actions">
-  <button on:click={openCreate}>➕ Add Menu Item</button>
-  <button on:click={openDelete}>📋 All Menu Items</button>
-  <button on:click={openUsers}>👥 Manage Users</button>
+<div class="admin-actions">
+  <button class="admin-btn" on:click={openCreate}>➕ Add Menu Item</button>
+  <button class="admin-btn" on:click={openDelete}>📋 All Menu Items</button>
+  <button class="admin-btn" on:click={openUsers}>👥 Manage Users</button>
 </div>
-
 {#if showCreateModal}
-  <div class="modal-backdrop">
-    <div class="modal">
+  <div class="admin-modal-backdrop">
+    <div class="admin-modal">
       <h2>New Menu Item</h2>
       <label>Name<input bind:value={createForm.name} /></label>
       <label>Price<input type="number" step="0.01" bind:value={createForm.price} /></label>
@@ -182,7 +207,7 @@
       <label>Image URL<input bind:value={createForm.image_url} /></label>
       <label>Available?<input type="checkbox" bind:checked={createForm.available} /></label>
       <label>Ingredients<input bind:value={createForm.ingredientsText} placeholder="e.g. Cheese, Tomato" /></label>
-      <div class="modal-actions">
+      <div class="admin-modal-actions">
         <button on:click={submitCreate}>Create</button>
         <button on:click={()=>showCreateModal=false}>Cancel</button>
       </div>
@@ -191,8 +216,8 @@
 {/if}
 
 {#if showDeleteModal}
-  <div class="modal-backdrop">
-    <div class="modal">
+  <div class="admin-modal-backdrop">
+    <div class="admin-modal">
       <h2>All Menu Items</h2>
       <ul>
         {#each items as item}
@@ -203,7 +228,7 @@
           </li>
         {/each}
       </ul>
-      <div class="modal-actions">
+      <div class="admin-modal-actions">
         <button on:click={()=>showDeleteModal=false}>Close</button>
       </div>
     </div>
@@ -211,8 +236,8 @@
 {/if}
 
 {#if showUpdateModal}
-  <div class="modal-backdrop">
-    <div class="modal">
+  <div class="admin-modal-backdrop">
+    <div class="admin-modal">
       <h2>Edit Menu Item</h2>
       <label>Name<input bind:value={updateForm.name} /></label>
       <label>Price<input type="number" step="0.01" bind:value={updateForm.price} /></label>
@@ -220,7 +245,7 @@
       <label>Image URL<input bind:value={updateForm.image_url} /></label>
       <label>Available?<input type="checkbox" bind:checked={updateForm.available} /></label>
       <label>Ingredients<input bind:value={updateForm.ingredientsText} placeholder="e.g. Cheese, Tomato" /></label>
-      <div class="modal-actions">
+      <div class="admin-modal-actions">
         <button on:click={submitUpdate}>Save</button>
         <button on:click={()=>showUpdateModal=false}>Cancel</button>
       </div>
@@ -229,8 +254,8 @@
 {/if}
 
 {#if showUsersModal}
-  <div class="modal-backdrop">
-    <div class="modal">
+  <div class="admin-modal-backdrop">
+    <div class="admin-modal">
       <h2>All Users</h2>
       <ul>
         {#each users as u}
@@ -240,7 +265,7 @@
           </li>
         {/each}
       </ul>
-      <div class="modal-actions">
+      <div class="admin-modal-actions">
         <button on:click={()=>showUsersModal=false}>Close</button>
       </div>
     </div>
@@ -248,8 +273,8 @@
 {/if}
 
 {#if showUserUpdateModal}
-  <div class="modal-backdrop">
-    <div class="modal">
+  <div class="admin-modal-backdrop">
+    <div class="admin-modal">
       <h2>Edit User</h2>
       <label>Username<input bind:value={userForm.username} /></label>
       <label>Email<input bind:value={userForm.email} /></label>
@@ -260,49 +285,10 @@
         </select>
       </label>
       <label>New Password<input type="password" bind:value={userForm.password} placeholder="Leave blank to keep" /></label>
-      <div class="modal-actions">
+      <div class="admin-modal-actions">
         <button on:click={submitUserUpdate}>Save</button>
         <button on:click={()=>showUserUpdateModal=false}>Cancel</button>
       </div>
     </div>
   </div>
 {/if}
-
-<style>
-  .actions button {
-    margin-right: 1rem;
-  }
-  .modal-backdrop {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90%;
-    overflow-y: auto;
-  }
-  label {
-    display: block;
-    margin-top: 0.75rem;
-  }
-  input, select {
-    width: 100%;
-    margin-top: 0.25rem;
-  }
-  .modal-actions {
-    margin-top: 1rem;
-    text-align: right;
-  }
-  .modal-actions button {
-    margin-left: 0.5rem;
-  }
-</style>

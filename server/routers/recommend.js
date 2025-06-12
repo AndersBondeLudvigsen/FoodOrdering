@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import fetch        from 'node-fetch';
 import { query }    from '../database/connection.js';
 
 const router   = Router();
@@ -117,11 +116,11 @@ Suggest up to 5 dishes from the above list, formatted as a JSON array:
         };
     });
 
-    return res.json(finalRecommendations);
+    return res.send(finalRecommendations);
 
   } catch (err) {
     console.error('Recommendation failed:', err);
-    return res.status(500).json({ message: 'Recommendation failed' });
+    return res.status(500).send({ message: 'Recommendation failed' });
   }
 });
 

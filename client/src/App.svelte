@@ -15,7 +15,10 @@
   import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
   import SalesDashBoard from "./components/Admin/SalesDashBoard.svelte";
   import Favorites from "./components/Favorites/Favorites.svelte";
+  import Footer from "./components/Footer/Footer.svelte"
 
+
+  import "./styels/layout.css"
 
   function logout() {
     token.set(null);
@@ -24,6 +27,7 @@
 
   $: role = $user?.role;
 </script>
+<main>
 
 <Router>
   {#if $token}
@@ -48,7 +52,7 @@
         <Link to="/admin/sales"> Sales</Link>
       {/if}
 
-      <button on:click={logout} style="margin-left:1rem">
+<button on:click={logout}>
         Log Out
       </button>
     </nav>
@@ -130,4 +134,12 @@
       </Route>
     {/if}
   </div>
+
+
+
+    
+
 </Router>
+</main>
+
+ <Footer /> 

@@ -3,6 +3,8 @@
     import * as toast   from '../../util/toast.js';
     import { token }    from '../../stores/auth.js';
     import { get }      from 'svelte/store';
+
+    import "../../styels/changepassword.css"
   
     let oldPassword      = '';
     let newPassword      = '';
@@ -73,17 +75,4 @@
     </button>
   </form>
   
-  <style>
-    input, button {
-      display: block;
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.75rem;
-      box-sizing: border-box;
-    }
-    button[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  </style>
-  
+ 

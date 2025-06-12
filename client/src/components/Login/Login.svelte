@@ -3,6 +3,8 @@
   import * as toast   from '../../util/toast.js';
   import { token }    from '../../stores/auth.js';
 
+  import "../../styels/login.css"
+
   let email    = '';
   let password = '';
   let loading  = false;
@@ -64,16 +66,4 @@
   </a>
 </p>
 
-<style>
-  input, button {
-    display: block;
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    box-sizing: border-box;
-  }
-  button[disabled] {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-</style>
+

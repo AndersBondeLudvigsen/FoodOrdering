@@ -1,6 +1,7 @@
 <script>
   import { cart }   from '../../stores/cart.js';
   import * as toast from '../../util/toast.js';
+  import "../../styels/basket.css"
 
   let items = [];
   let loading = false;
@@ -48,34 +49,25 @@
     }
   }
 </script>
+<div class="basket-container">
+  <h1>Your Basket</h1>
 
-<h1>Your Basket</h1>
-
-{#if items.length === 0}
-  <p>Your basket is empty.</p>
-{:else}
-  <ul>
-    {#each items as i}
-      <li>{i.name} × {i.quantity} — {i.price * i.quantity} DKK</li>
-    {/each}
-  </ul>
-  <p><strong>Total:</strong> {items.reduce((s,i) => s + i.price * i.quantity, 0)} DKK</p>
-  <button on:click={placeOrderAndPay} disabled={loading}>
-    {#if loading}Redirecting…{:else}Place Order & Pay{/if}
-  </button>
-{/if}
-
-<style>
-  ul { list-style: none; padding: 0; }
-  li { margin-bottom: 0.5rem; }
-  button {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  button:disabled { opacity: 0.6; cursor: not-allowed; }
-</style>
+  {#if items.length === 0}
+    <p>Your basket is empty.</p>
+  {:else}
+    <ul>
+      {#each items as i}
+        <li>
+          <span>{i.name} × {i.quantity}</span>
+          <span>{i.price * i.quantity} DKK</span>
+        </li>
+      {/each}
+    </ul>
+    <p class="total">
+      Total: {items.reduce((s, i) => s + i.price * i.quantity, 0)} DKK
+    </p>
+    <button on:click={placeOrderAndPay} disabled={loading}>
+      {#if loading}Redirecting…{:else}Place Order & Pay{/if}
+    </button>
+  {/if}
+</div>

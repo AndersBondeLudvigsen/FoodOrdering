@@ -1,5 +1,4 @@
 import pg       from 'pg';
-import fetch    from 'node-fetch';
 import bcrypt   from 'bcrypt';
 import dotenv   from 'dotenv';
 dotenv.config();

@@ -1,6 +1,8 @@
 <script>
     import { io }     from 'socket.io-client';
     import * as toast  from '../../util/toast.js';
+
+    import "../../styels/stocktoggle.css"
   
     let menuId      = '';
     let item        = null;
@@ -104,30 +106,4 @@
       </button>
     </div>
   {/if}
-  
-  <style>
-    .search { display:flex; gap:0.5rem; margin-bottom:1rem; }
-    .search input { flex:1; padding:0.5rem; }
-    .search button { padding:0.5rem 1rem; }
-  
-    .detail {
-      border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 6px;
-      max-width: 400px;
-    }
-    .in-stock { color: green; }
-    .sold-out { color: red; }
-  
-    .toggle-btn {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .toggle-btn[disabled] { opacity: 0.6; }
-  </style>
   

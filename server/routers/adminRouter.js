@@ -27,7 +27,7 @@ router.get('/menu-items', async (req, res) => {
             GROUP BY mi.id
             ORDER BY mi.name
         `);
-        res.json(rows);
+        res.send(rows);
     } catch (err) {
         console.error('Admin GET /menu-items error:', err);
         res.status(500).json({ message: "Server error fetching menu items" });
@@ -136,7 +136,7 @@ router.patch('/menu-items/:id', async (req, res) => {
         );
       }
 
-      res.json({ message: 'Menu item updated successfully.' });
+      res.send({ message: 'Menu item updated successfully.' });
     } catch (err) {
       console.error('Admin PATCH /menu-items/:id error:', err);
       res.status(500).json({ message: 'Server error updating menu item' });
@@ -153,7 +153,7 @@ router.delete('/menu-items/:id', async (req, res) => {
       if (result.rowCount === 0) {
         return res.status(404).json({ message: 'Menu item not found.' });
       }
-      res.json({ message: 'Menu item deleted successfully.' });
+      res.send({ message: 'Menu item deleted successfully.' });
     } catch (err) {
       console.error('Admin DELETE /menu-items/:id error:', err);
       res.status(500).json({ message: 'Server error deleting menu item' });
@@ -169,7 +169,7 @@ router.get('/users', async (req, res) => {
             FROM users
             ORDER BY username
         `);
-        res.json(rows);
+        res.send(rows);
     } catch (err) {
         console.error('Admin GET /users error:', err);
         res.status(500).json({ message: 'Server error fetching users' });
@@ -228,7 +228,7 @@ router.patch('/users/:id', async (req, res) => {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      return res.json(result.rows[0]);
+      return res.send(result.rows[0]);
     } catch (err) {
       console.error('Admin PATCH /users/:id error:', err);
       if (err.code === '23505' && err.constraint === 'users_email_key') {
@@ -287,7 +287,7 @@ router.get('/sales', async (req, res) => {
             ORDER BY hour;
         `);
 
-        return res.json({
+        return res.send({
             daily: dailyRows,       // [{ day, total_sales }, …]
             topItems: topItemsRows, // [{ id, name, total_quantity }, …]
             hourly: hourlyRows      // [{ hour, order_count }, …]
@@ -366,7 +366,7 @@ router.get('/sales/item-by-name', async (req, res) => {
             AND o.status != 'cancelled';
         `, [itemId]);
 
-        res.json({
+        res.send({
             itemName: itemName, // Return the exact name from the input for display
             id: itemId,
             today: dailyItemSales[0],

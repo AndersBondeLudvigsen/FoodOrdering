@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
             GROUP BY mi.id
             ORDER BY mi.id
           `);
-    res.json(rows);
+    res.send(rows);
   } catch (err) {
     res.status(500).json({ message: 'Server error loading menu' });
   }
@@ -57,7 +57,7 @@ router.get('/:id', async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Item not found' });
     }
-    res.json(rows[0]);
+    res.send(rows[0]);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

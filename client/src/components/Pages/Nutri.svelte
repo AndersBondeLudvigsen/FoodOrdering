@@ -1,5 +1,7 @@
 <!-- src/components/Nutri.svelte -->
 <script>
+
+  import "../../styels/nutri.css"
   export let id; // menu_item id
 
   let showNutrition = false;
@@ -40,37 +42,6 @@
     }
   }
 </script>
-
-<style>
-  .nutri-container {
-    margin-top: 0.75rem;
-    background: #f3f4f6;
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-  }
-  .nutri-container p {
-    margin: 0.25rem 0;
-  }
-  .nutri-error {
-    color: #dc2626;
-    margin-top: 0.5rem;
-  }
-  .nutri-btn {
-    margin-top: 0.5rem;
-    padding: 0.4rem 0.8rem;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-  .nutri-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-</style>
 
 <button class="nutri-btn" on:click={fetchNutrition} disabled={loading}>
   {#if loading} Henter ernæring… {:else} Vis ernærings‐info {/if}

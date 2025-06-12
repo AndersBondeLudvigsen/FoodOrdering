@@ -30,7 +30,7 @@ router.post('/create-checkout-session', async (req, res) => {
         userId: req.user.id
       }
     });
-    res.json({ url: session.url });
+    res.send({ url: session.url });
   } catch (err) {
     res.status(500).json({ message: 'Could not create checkout session' });
   }

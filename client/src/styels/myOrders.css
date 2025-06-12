@@ -1,0 +1,65 @@
+  .orders-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .column {
+    background: #f9f9f9;
+    border-radius: 6px;
+    padding: 0.5rem;
+  }
+  .column h2 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+  .order-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+  .order-header time {
+    margin-left: 0.5rem;
+    font-size: 0.85em;
+    color: #555;
+  }
+  .status {
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.8em;
+    text-transform: capitalize;
+    color: white;
+  }
+  .status.pending    { background: orange; }
+  .status.cancelled  { background: #e53e3e; }
+  .status.in-making  { background: #3182ce; }
+  .status.ready      { background: #38a169; }
+  .order-items {
+    margin: 0;
+    padding-left: 1rem;
+  }
+  .order-items li {
+    margin: 0.25rem 0;
+  }
+  .reorder-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #2d3748;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .reorder-btn:hover {
+    background: #1a202c;
+  }

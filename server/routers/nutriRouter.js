@@ -54,7 +54,7 @@ router.get(
       const nutritionixData = await analyzeNutritionix(ingredientLines);
 
       // 4) Returnér Nutritionix-svar som JSON
-      return res.json(nutritionixData);
+      return res.send(nutritionixData);
     } catch (err) {
       console.error('Fejl i GET /menu/:id/nutrition:', err);
       return res
