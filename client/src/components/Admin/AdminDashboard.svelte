@@ -58,7 +58,7 @@
     }
   }
   async function deleteItem(id) {
-    if(!confirm('Are you sure?')) return;
+  
     try {
       const res = await fetch(`http://localhost:8080/admin/menu-items/${id}`, {
         method:'DELETE',
@@ -223,8 +223,9 @@ if (index !== -1) {
         {#each items as item}
           <li>
             {item.name} — ${parseFloat(item.price).toFixed(2)}
-            <button on:click={()=>openUpdate(item)}>Edit</button>
-            <button on:click={()=>deleteItem(item.id)}>Delete</button>
+            <button class="admin-btn edit" on:click={() => openUpdate(item)}>Edit</button>
+            <button class="admin-btn danger" on:click={() => deleteItem(item.id)}>Delete</button>
+
           </li>
         {/each}
       </ul>

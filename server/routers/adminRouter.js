@@ -4,7 +4,6 @@ import { query } from '../database/connection.js';
 
 const router = Router();
 
-// --- Existing /menu-items routes ---
 router.get('/menu-items', async (req, res) => {
     try {
         const { rows } = await query(`

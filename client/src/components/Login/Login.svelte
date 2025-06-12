@@ -66,4 +66,10 @@
   </a>
 </p>
 
+<p style="text-align:center; margin-top:1rem;">
+  Forgot password?
+  <a href="#" on:click|preventDefault={() => navigate('/forgot-password')}>
+    Forgot password
+  </a>
+</p>
 

@@ -16,6 +16,9 @@
   import SalesDashBoard from "./components/Admin/SalesDashBoard.svelte";
   import Favorites from "./components/Favorites/Favorites.svelte";
   import Footer from "./components/Footer/Footer.svelte"
+  import ResetPassword from "./components/ForgotPassword/ResetPassword.svelte"
+  import ForgotPassword from "./components/ForgotPassword/ForgotPassword.svelte";
+
 
 
   import "./styels/layout.css"
@@ -32,6 +35,9 @@
 <Router>
   {#if $token}
     <nav>
+      <button on:click={logout}>
+        Log Out
+      </button>
       {#if role === 'customer'}
         <Link to="/">Home</Link>
         <Link to="/basket">Basket</Link>
@@ -52,9 +58,7 @@
         <Link to="/admin/sales"> Sales</Link>
       {/if}
 
-<button on:click={logout}>
-        Log Out
-      </button>
+
     </nav>
   {/if}
 
@@ -64,6 +68,15 @@
     </Route>
     <Route path="/signup">
       <Signup />
+    </Route>
+
+
+    <Route path="/forgot-password"> // 
+      <ForgotPassword />
+    </Route>
+
+    <Route path="/reset-password"> // 
+      <ResetPassword />
     </Route>
 
     <Route path="/" exact>
