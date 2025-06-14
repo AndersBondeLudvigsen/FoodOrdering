@@ -17,7 +17,7 @@
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(
-        `http://localhost:8080/nutri/menu/${id}/nutrition`,
+        `http://localhost:8080/nutrisions/${id}`,
         {
           headers: {
             // Hvis dit endpoint kræver token (authenticateJWT), send det her:

@@ -13,7 +13,7 @@ const router = Router();
  * Først hentes alle ingrediensnavne (array af strenge) fra DB, derefter kaldes analyzeNutritionix().
  */
 router.get(
-  '/menu/:id/nutrition', // Hvis du vil beskytte endpointet med token. Fjern linjen, hvis du vil have det offentligt.
+  '/:id', // Hvis du vil beskytte endpointet med token. Fjern linjen, hvis du vil have det offentligt.
   async (req, res) => {
     // 1) Parse menu_item_id
     const menuItemId = parseInt(req.params.id, 10);

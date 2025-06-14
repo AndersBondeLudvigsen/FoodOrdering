@@ -16,7 +16,7 @@
   async function submitCreate() {
     const ingredients = createForm.ingredientsText.split(',').map(s=>s.trim()).filter(Boolean);
     try {
-      const res = await fetch('http://localhost:8080/admin/menu-items', {
+      const res = await fetch('http://localhost:8080/admin/update/menu-items', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +47,7 @@
   let items = [];
   async function openDelete() {
     try {
-      const res = await fetch('http://localhost:8080/admin/menu-items', {
+      const res = await fetch('http://localhost:8080/menu', {
         headers: { 'Authorization': `Bearer ${$token}` }
       });
       if (!res.ok) throw new Error('Failed to load items');

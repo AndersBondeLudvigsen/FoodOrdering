@@ -1,8 +1,9 @@
 <script>
   import { Router, Link, Route, navigate } from "svelte-routing";
-  import { token, user } from "./stores/auth.js";
-  import RequireRole from "./components/RoleCheck/RequireRole.svelte";
 
+  import { token, user } from "./stores/auth.js";
+
+  import RequireRole from "./components/RoleCheck/RequireRole.svelte";
   import MenuPage from "./components/Pages/Menu.svelte";
   import Login from "./components/Login/Login.svelte";
   import Signup from "./components/Signup/Signup.svelte";
@@ -18,8 +19,6 @@
   import Footer from "./components/Footer/Footer.svelte"
   import ResetPassword from "./components/ForgotPassword/ResetPassword.svelte"
   import ForgotPassword from "./components/ForgotPassword/ForgotPassword.svelte";
-
-
 
   import "./styels/layout.css"
 

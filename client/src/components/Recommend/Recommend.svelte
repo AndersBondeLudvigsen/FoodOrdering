@@ -29,7 +29,7 @@
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Not logged in');
 
-      const res = await fetch('http://localhost:8080/recommend', {
+      const res = await fetch('http://localhost:8080/recommendations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

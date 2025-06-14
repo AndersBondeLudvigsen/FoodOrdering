@@ -4,36 +4,24 @@ import { query } from '../database/connection.js';
 
 const router = Router();
 
-router.get('/menu-items', async (req, res) => {
+
+// --- Existing /users routes ---
+router.get('/users', async (req, res) => {
     try {
         const { rows } = await query(`
-            SELECT
-              mi.id,
-              mi.name,
-              mi.price,
-              mi.category,
-              mi.image_url,
-              mi.available,
-              COALESCE(
-                json_agg(i.name) FILTER (WHERE i.name IS NOT NULL),
-                '[]'
-              ) AS ingredients
-            FROM menu_items mi
-            LEFT JOIN menu_item_ingredients mii
-              ON mi.id = mii.menu_item_id
-            LEFT JOIN ingredients i
-              ON mii.ingredient_id = i.id
-            GROUP BY mi.id
-            ORDER BY mi.name
+            SELECT id, username, email, role
+            FROM users
+            ORDER BY username
         `);
         res.send(rows);
     } catch (err) {
-        console.error('Admin GET /menu-items error:', err);
-        res.status(500).json({ message: "Server error fetching menu items" });
+        console.error('Admin GET /users error:', err);
+        res.status(500).json({ message: 'Server error fetching users' });
     }
 });
 
-router.post('/menu-items', async (req, res) => {
+
+router.post('/update/menu-items', async (req, res) => {
     const {
       name,
       price,
@@ -160,20 +148,6 @@ router.delete('/menu-items/:id', async (req, res) => {
 });
 
 
-// --- Existing /users routes ---
-router.get('/users', async (req, res) => {
-    try {
-        const { rows } = await query(`
-            SELECT id, username, email, role
-            FROM users
-            ORDER BY username
-        `);
-        res.send(rows);
-    } catch (err) {
-        console.error('Admin GET /users error:', err);
-        res.status(500).json({ message: 'Server error fetching users' });
-    }
-});
 
 router.patch('/users/:id', async (req, res) => {
     const userId = Number(req.params.id);
