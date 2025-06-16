@@ -59,17 +59,18 @@
   }
 
   /* Star button in top-right */
-  .star-button {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    line-height: 1;
-    padding: 0;
-  }
+/* Star button in top-right */
+.star-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 3rem; /* Størrelsen er nu fordoblet fra 1.5rem til 3rem */
+  line-height: 1;
+  padding: 0;
+}
   .star.filled {
     color: gold;
   }

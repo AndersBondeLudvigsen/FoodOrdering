@@ -65,7 +65,6 @@ router.patch('/:id/status', async (req, res) => {
 
     const io = getIO();
     io.emit('order-status-update', { orderId, status, userId: order.user_id });
-    io.to(`user_${order.user_id}`).emit('your-order-status', { orderId, status });
     
 
     return res.send({ orderId, status });
@@ -91,7 +90,6 @@ router.patch('/:id/cancel', async (req, res) => {
 
     const io = getIO();
     io.emit('order-status-update', { orderId, status, userId });
-    io.to(`user_${userId}`).emit('your-order-status', { orderId, status });
 
     return res.send({ orderId, status });
   } catch (err) {

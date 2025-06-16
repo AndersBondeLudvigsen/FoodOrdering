@@ -222,7 +222,7 @@ if (index !== -1) {
       <ul>
         {#each items as item}
           <li>
-            {item.name} — ${parseFloat(item.price).toFixed(2)}
+            {item.name} — {parseFloat(item.price).toFixed(2)} DKK
             <button class="admin-btn edit" on:click={() => openUpdate(item)}>Edit</button>
             <button class="admin-btn danger" on:click={() => deleteItem(item.id)}>Delete</button>
 
@@ -283,6 +283,7 @@ if (index !== -1) {
         <select bind:value={userForm.role}>
           <option value="customer">customer</option>
           <option value="admin">admin</option>
+          <option value="kitchen">kitchen</option>
         </select>
       </label>
       <label>New Password<input type="password" bind:value={userForm.password} placeholder="Leave blank to keep" /></label>

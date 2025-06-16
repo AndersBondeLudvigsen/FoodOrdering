@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 const APP_ID  = process.env.NUTRITIONIX_APP_ID;
 const APP_KEY = process.env.NUTRITIONIX_APP_KEY;
-
+const ENDPOINT = process.env.NUTRITIONIX_ENDPOINT
 if (!APP_ID || !APP_KEY) {
   console.error(
     'Manglende Nutritionix‐nøgle: Sæt NUTRITIONIX_APP_ID og NUTRITIONIX_APP_KEY i .env'
@@ -13,7 +13,7 @@ if (!APP_ID || !APP_KEY) {
 
 
 export async function analyzeNutritionix(ingredientLines) {
-  const endpoint = 'https://trackapi.nutritionix.com/v2/natural/nutrients';
+  const endpoint = ENDPOINT
 
   // Sammensæt alle ingredienslinjer i én streng adskilt af newline
   const queryString = ingredientLines.join('\n');

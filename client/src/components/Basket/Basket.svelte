@@ -1,5 +1,5 @@
 <script>
-  import { cart }   from '../../stores/cart.js';
+  import { cart, decreaseQuantity, clearCart }   from '../../stores/cart.js';
   import * as toast from '../../util/toast.js';
   import "../../styels/basket.css"
 
@@ -56,12 +56,17 @@
     <p>Your basket is empty.</p>
   {:else}
     <ul>
-      {#each items as i}
-        <li>
-          <span>{i.name} × {i.quantity}</span>
-          <span>{i.price * i.quantity} DKK</span>
-        </li>
-      {/each}
+    {#each $cart as item (item.id)}
+    <li class="basket-item">
+        <span class="item-name">{item.name}</span>
+        
+        <!-- Kontroller til at justere antal -->
+        <div class="item-quantity">
+            <button class="quantity-btn" on:click={() => decreaseQuantity(item.id)}>−</button>
+            <span>{item.quantity}</span>
+        </div>
+          </li>
+{/each}
     </ul>
     <p class="total">
       Total: {items.reduce((s, i) => s + i.price * i.quantity, 0)} DKK
@@ -70,4 +75,9 @@
       {#if loading}Redirecting…{:else}Place Order & Pay{/if}
     </button>
   {/if}
+
+  <div class="basket-actions">
+    <!-- Knap til at rydde hele kurven -->
+    <button style="background-color: red;" class="clear-btn" on:click={clearCart}>Tøm Kurv</button>
+</div>
 </div>

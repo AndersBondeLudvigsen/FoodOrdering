@@ -80,7 +80,7 @@
       on:keydown={e => e.key === 'Enter' && fetchItem()}
     />
     <button on:click={fetchItem} disabled={!menuId || loading}>
-      {loading ? 'Loading…' : 'Fetch Item'}
+      {loading ? 'Loading…' : 'Show menu item'}
     </button>
   </div>
   

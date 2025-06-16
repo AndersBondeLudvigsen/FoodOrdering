@@ -92,40 +92,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.patch('/change-password', authenticate, async (req, res) => {
-    const userId      = req.user.id;
-    const { oldPassword, newPassword } = req.body;
-
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: 'Both passwords are required' });
-    }
-
-    try {
-      const { rows } = await query(
-        'SELECT password FROM users WHERE id = $1',
-        [userId]
-      );
-      if (rows.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      const valid = await bcrypt.compare(oldPassword, rows[0].password);
-      if (!valid) {
-        return res.status(401).json({ message: 'Current password is incorrect' });
-      }
-
-      const newHash = await bcrypt.hash(newPassword, 10);
-      await query(
-        'UPDATE users SET password = $1 WHERE id = $2',
-        [newHash, userId]
-      );
-
-      return res.send({ message: 'Password updated' });
-    } catch (err) {
-      return res.status(500).json({ message: 'Server error' });
-    }
-  }
-);
 
 
 router.post('/forgot-password', async (req, res) => {
@@ -204,6 +170,43 @@ router.post('/reset-password', async (req, res) => {
     return res.status(500).json({ message: 'Server error during password reset' });
   }
 });
+
+
+router.patch('/change-password', authenticate, async (req, res) => {
+    const userId      = req.user.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Both passwords are required' });
+    }
+
+    try {
+      const { rows } = await query(
+        'SELECT password FROM users WHERE id = $1',
+        [userId]
+      );
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const valid = await bcrypt.compare(oldPassword, rows[0].password);
+      if (!valid) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+      await query(
+        'UPDATE users SET password = $1 WHERE id = $2',
+        [newHash, userId]
+      );
+
+      return res.send({ message: 'Password updated' });
+    } catch (err) {
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
 
 
 export default router;

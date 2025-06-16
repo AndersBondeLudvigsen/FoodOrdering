@@ -5,16 +5,8 @@ import { analyzeNutritionix } from '../utils/nutri.js';
 
 const router = Router();
 
-/**
- * GET /api/menu/:id/nutrition
- * Auth: Kræver gyldig JWT (om nødvendigt)
- *
- * Returnerer Nutritionix-data for den menu_item med id = req.params.id.
- * Først hentes alle ingrediensnavne (array af strenge) fra DB, derefter kaldes analyzeNutritionix().
- */
-router.get(
-  '/:id', // Hvis du vil beskytte endpointet med token. Fjern linjen, hvis du vil have det offentligt.
-  async (req, res) => {
+
+router.get( '/:id', async (req, res) => {
     // 1) Parse menu_item_id
     const menuItemId = parseInt(req.params.id, 10);
     if (isNaN(menuItemId)) {

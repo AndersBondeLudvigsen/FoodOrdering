@@ -1,157 +1,111 @@
 <script>
-  import { Router, Link, Route, navigate } from "svelte-routing";
+    import { Router, Link, Route, navigate } from "svelte-routing";
+    import { onMount } from 'svelte';
+    import { token, user } from "./stores/auth.js";
 
-  import { token, user } from "./stores/auth.js";
 
-  import RequireRole from "./components/RoleCheck/RequireRole.svelte";
-  import MenuPage from "./components/Pages/Menu.svelte";
-  import Login from "./components/Login/Login.svelte";
-  import Signup from "./components/Signup/Signup.svelte";
-  import Basket from "./components/Basket/Basket.svelte";
-  import MyOrders from "./components/Orders/Orders.svelte";
-  import Recommend from "./components/Recommend/Recommend.svelte";
-  import Kitchen from "./components/Kitchen/Kitchen.svelte";
-  import StockToggle from "./components/Kitchen/StockToggle.svelte";
-  import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
-  import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
-  import SalesDashBoard from "./components/Admin/SalesDashBoard.svelte";
-  import Favorites from "./components/Favorites/Favorites.svelte";
-  import Footer from "./components/Footer/Footer.svelte"
-  import ResetPassword from "./components/ForgotPassword/ResetPassword.svelte"
-  import ForgotPassword from "./components/ForgotPassword/ForgotPassword.svelte";
+    import MenuPage from "./components/Menu/Menu.svelte";
+    import Login from "./components/Login/Login.svelte";
+    import Signup from "./components/Signup/Signup.svelte";
+    import Basket from "./components/Basket/Basket.svelte";
+    import MyOrders from "./components/Orders/Orders.svelte";
+    import Recommend from "./components/Recommend/Recommend.svelte";
+    import Kitchen from "./components/Kitchen/Kitchen.svelte";
+    import StockToggle from "./components/Kitchen/StockToggle.svelte";
+    import ChangePassword from "./components/ChangePassword/ChangePassword.svelte";
+    import AdminDashboard from "./components/Admin/AdminDashboard.svelte";
+    import SalesDashBoard from "./components/Admin/SalesDashBoard.svelte";
+    import Favorites from "./components/Favorites/Favorites.svelte";
+    import Footer from "./components/Footer/Footer.svelte";
+    import ResetPassword from "./components/ForgotPassword/ResetPassword.svelte";
+    import ForgotPassword from "./components/ForgotPassword/ForgotPassword.svelte";
 
-  import "./styels/layout.css"
+    import "./styels/layout.css";
 
-  function logout() {
-    token.set(null);
-    navigate("/login");
-  }
+    function logout() {
+        token.set(null);
+        navigate("/login", { replace: true });
+    }
 
-  $: role = $user?.role;
+    $: role = $user?.role;
+
+
+    onMount(() => {
+              const publicPaths = ['/login', '/signup', '/forgot-password', '/reset-password'];
+        setTimeout(() => {
+            if (!$token && !publicPaths) {
+                navigate('/login', { replace: true });
+            }
+        }, 0);
+    });
 </script>
-<main>
 
-<Router>
-  {#if $token}
-    <nav>
-      <button on:click={logout}>
-        Log Out
-      </button>
-      {#if role === 'customer'}
-        <Link to="/">Home</Link>
-        <Link to="/basket">Basket</Link>
-        <Link to="/orders">My Orders</Link>
-        <Link to="/recommend">Recommend</Link>
-        <Link to="/change-password">Change Password</Link>
-        <Link to="/favorites">Favorites</Link>
+<main style="padding:1rem">
+    <Router>
+        <!-- The <nav> menu is now correctly placed *inside* the <Router> component -->
+        {#if $token}
+            <nav>
+                <button on:click={logout}>Log Out</button>
+                {#if role === 'customer'}
+                    <Link to="/">Home</Link>
+                    <Link to="/basket">Basket</Link>
+                    <Link to="/orders">My Orders</Link>
+                    <Link to="/recommend">Recommend</Link>
+                    <Link to="/change-password">Change Password</Link>
+                    <Link to="/favorites">Favorites</Link>
+                {/if}
+                {#if role === 'kitchen'}
+                    <Link to="/">Kitchen</Link>
+                    <Link to="/stock-toggle">Stock Toggle</Link>
+                {/if}
+                {#if role === 'admin'}
+                    <Link to="/">Admin Dashboard</Link>
+                    <Link to="/sales">Sales</Link>
+                {/if}
+            </nav>
+        {/if}
 
-      {/if}
+        <!-- 
+            This structure acts as a gatekeeper, only ever rendering the set of 
+            routes the current user is allowed to see. This is the core fix.
+            We are using the "slotted" syntax (<Route><Component/></Route>)
+            as it appears to be more stable with this dynamic approach.
+        -->
+        {#if !$token}
+            <!-- Routes for GUESTS (not logged in) -->
+            <Route path="/login"><Login /></Route>
+            <Route path="/signup"><Signup /></Route>
+            <Route path="/forgot-password"><ForgotPassword /></Route>
+            <Route path="/reset-password"><ResetPassword /></Route>
+            <!-- Any other path redirects a guest to the login page -->
+            <Route path="*"><Login /></Route>
+            
+        {:else if role === 'customer'}
+            <!-- Routes for CUSTOMERS -->
+            <Route path="/"><MenuPage /></Route>
+            <Route path="/basket"><Basket /></Route>
+            <Route path="/orders"><MyOrders /></Route>
+            <Route path="/recommend"><Recommend /></Route>
+            <Route path="/favorites"><Favorites /></Route>
+            <Route path="/change-password"><ChangePassword /></Route>
+            <!-- Any other path for a customer goes to the main menu -->
+            <Route path="*"><MenuPage /></Route>
 
-      {#if role === 'kitchen'}
-        <Link to="/kitchen">Kitchen</Link>
-        <Link to="/kitchen/stock-toggle">Stock Toggle</Link>
-      {/if}
+        {:else if role === 'kitchen'}
+            <!-- Routes for KITCHEN STAFF -->
+            <Route path="/"><Kitchen /></Route>
+            <Route path="/stock-toggle"><StockToggle /></Route>
+            <!-- Any other path for kitchen staff goes to the kitchen dashboard -->
+            <Route path="*"><Kitchen /></Route>
 
-      {#if role === 'admin'}
-        <Link to="/admin">Admin Dashboard</Link>
-        <Link to="/admin/sales"> Sales</Link>
-      {/if}
-
-
-    </nav>
-  {/if}
-
-  <div style="padding:1rem">
-    <Route path="/login">
-      <Login />
-    </Route>
-    <Route path="/signup">
-      <Signup />
-    </Route>
-
-
-    <Route path="/forgot-password"> // 
-      <ForgotPassword />
-    </Route>
-
-    <Route path="/reset-password"> // 
-      <ResetPassword />
-    </Route>
-
-    <Route path="/" exact>
-      {#if !$token}
-        <Login />
-      {:else if role === 'customer'}
-        <MenuPage />
-      {:else if role === 'kitchen'}
-        <Kitchen />
-      {:else if role === 'admin'}
-        <AdminDashboard />
-      {:else}
-        <Login /> 
-      {/if}
-    </Route>
-
-    {#if $token} 
-         <Route path="/basket">
-        <RequireRole {role} allowed={['customer']} redirect="/" >
-          <Basket />
-        </RequireRole>
-      </Route>
-      <Route path="/orders">
-        <RequireRole {role} allowed={['customer']} redirect="/" >
-          <MyOrders />
-        </RequireRole>
-      </Route>
-      <Route path="/recommend">
-        <RequireRole {role} allowed={['customer']} redirect="/" >
-          <Recommend />
-        </RequireRole>
-      </Route>
-
-        <Route path="/favorites">
-        <RequireRole {role} allowed={['customer']} redirect="/" >
-          <Favorites/>
-        </RequireRole>
-      </Route>
-
-      <Route path="/kitchen">
-        <RequireRole {role} allowed={['kitchen']} redirect="/" >
-          <Kitchen />
-        </RequireRole>
-      </Route>
-      <Route path="/kitchen/stock-toggle">
-        <RequireRole {role} allowed={['kitchen']} redirect="/" >
-          <StockToggle />
-        </RequireRole>
-      </Route>
-
-      <Route path="/admin">
-        <RequireRole {role} allowed={['admin']} redirect="/" >
-          <AdminDashboard />
-        </RequireRole>
-      </Route>
-
-
-       <Route path="/admin/sales">
-        <RequireRole {role} allowed={['admin']} redirect="/" >
-          <SalesDashBoard />
-        </RequireRole>
-      </Route>
-
-      <Route path="/change-password">
-        <RequireRole {role} allowed={['customer']} redirect="/" >
-          <ChangePassword />
-        </RequireRole>
-      </Route>
-    {/if}
-  </div>
-
-
-
-    
-
-</Router>
+        {:else if role === 'admin'}
+            <!-- Routes for ADMINS -->
+            <Route path="/"><AdminDashboard /></Route>
+            <Route path="/sales"><SalesDashBoard /></Route>
+            <!-- Any other path for an admin goes to the admin dashboard -->
+            <Route path="*"><AdminDashboard /></Route>
+        {/if}
+    </Router>
 </main>
 
- <Footer /> 
+<Footer />

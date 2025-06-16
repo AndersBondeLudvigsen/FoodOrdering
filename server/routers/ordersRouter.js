@@ -5,6 +5,39 @@ import { getIO }        from '../utils/socketIo.js';
 const router = Router();
 
 
+
+router.get('/', async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const { rows } = await query(
+      `
+      SELECT
+        o.id,
+        o.status,
+        o.created_at,
+        json_agg(
+          json_build_object(
+            'menuItemId', oi.menu_item_id,
+            'quantity',   oi.quantity
+          )
+        ) AS items
+      FROM orders o
+      JOIN order_items oi
+        ON oi.order_id = o.id
+      WHERE o.user_id = $1
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+      `,
+      [userId]
+    );
+
+    return res.send(rows);
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error loading orders' });
+  }
+});
+
+
 router.post('/', async (req, res) => {
   const userId = req.user.id;
   const { items } = req.body;
@@ -39,35 +72,5 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
-  const userId = req.user.id;
-  try {
-    const { rows } = await query(
-      `
-      SELECT
-        o.id,
-        o.status,
-        o.created_at,
-        json_agg(
-          json_build_object(
-            'menuItemId', oi.menu_item_id,
-            'quantity',   oi.quantity
-          )
-        ) AS items
-      FROM orders o
-      JOIN order_items oi
-        ON oi.order_id = o.id
-      WHERE o.user_id = $1
-      GROUP BY o.id
-      ORDER BY o.created_at DESC
-      `,
-      [userId]
-    );
-
-    return res.send(rows);
-  } catch (err) {
-    return res.status(500).json({ message: 'Server error loading orders' });
-  }
-});
 
 export default router;

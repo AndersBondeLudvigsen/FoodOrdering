@@ -18,7 +18,8 @@ async function clearAll() {
         menu_item_ingredients,
         menu_items,
         ingredients,
-        users
+        users,
+        favorites
       RESTART IDENTITY
       CASCADE;
     `);
