@@ -1,6 +1,8 @@
 // server/routes/menuNutrition.js
 import { Router } from 'express';
-import { query } from '../database/connection.js';             // Din SQL-helper (PG Pool eller lignende)
+
+import { query } from '../database/connection.js';     
+       
 import { analyzeNutritionix } from '../utils/nutri.js';
 
 const router = Router();

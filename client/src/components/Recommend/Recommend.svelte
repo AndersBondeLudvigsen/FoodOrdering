@@ -1,6 +1,8 @@
 <script>
     import { navigate } from 'svelte-routing';
+
     import * as toast from '../../util/toast.js';
+    
     import { addToCart } from '../../stores/cart.js';
 
     import "../../styels/recommend.css";

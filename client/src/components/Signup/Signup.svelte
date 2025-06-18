@@ -1,5 +1,6 @@
 <script>
   import { navigate } from 'svelte-routing';
+  
   import * as toast from '../../util/toast.js';
 
   let username = $state('');

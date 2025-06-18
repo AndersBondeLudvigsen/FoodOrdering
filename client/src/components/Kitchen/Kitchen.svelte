@@ -2,6 +2,7 @@
   
   import { onMount } from 'svelte';
   import { io } from 'socket.io-client';
+  
   import * as toast from '../../util/toast.js';
 
   import "../../styels/kitchenpage.css";
@@ -29,7 +30,7 @@
       if (!res.ok) throw new Error("Failed to load orders");
       
       const orders = await res.json();
-      // Opdaterer  `$state` variablen.
+      // Opdaterer  `state` .
       liveOrders = orders.map(o => ({
         id: o.id,
         status: o.status,
@@ -92,7 +93,6 @@
   }
 
   onMount(() => {
-    // Anonym async funktion for at kunne bruge await
     (async () => {
       await loadOrders();
       loading = false;

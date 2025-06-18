@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS menu_items (
   id         SERIAL PRIMARY KEY,
   name       TEXT NOT NULL UNIQUE,
-  price      NUMERIC(8,2) NOT NULL,
+  price      INTEGER NOT NULL,
   category   TEXT,
   image_url  TEXT,
   available  BOOLEAN NOT NULL DEFAULT TRUE

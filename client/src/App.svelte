@@ -42,7 +42,6 @@
 
 <main style="padding:1rem">
     <Router>
-        <!-- The <nav> menu is now correctly placed *inside* the <Router> component -->
         {#if $token}
             <nav>
                 <button on:click={logout}>Log Out</button>
@@ -65,44 +64,32 @@
             </nav>
         {/if}
 
-        <!-- 
-            This structure acts as a gatekeeper, only ever rendering the set of 
-            routes the current user is allowed to see. This is the core fix.
-            We are using the "slotted" syntax (<Route><Component/></Route>)
-            as it appears to be more stable with this dynamic approach.
-        -->
+        
+        
         {#if !$token}
-            <!-- Routes for GUESTS (not logged in) -->
             <Route path="/login"><Login /></Route>
             <Route path="/signup"><Signup /></Route>
             <Route path="/forgot-password"><ForgotPassword /></Route>
             <Route path="/reset-password"><ResetPassword /></Route>
-            <!-- Any other path redirects a guest to the login page -->
             <Route path="*"><Login /></Route>
             
         {:else if role === 'customer'}
-            <!-- Routes for CUSTOMERS -->
             <Route path="/"><MenuPage /></Route>
             <Route path="/basket"><Basket /></Route>
             <Route path="/orders"><MyOrders /></Route>
             <Route path="/recommend"><Recommend /></Route>
             <Route path="/favorites"><Favorites /></Route>
             <Route path="/change-password"><ChangePassword /></Route>
-            <!-- Any other path for a customer goes to the main menu -->
             <Route path="*"><MenuPage /></Route>
 
         {:else if role === 'kitchen'}
-            <!-- Routes for KITCHEN STAFF -->
             <Route path="/"><Kitchen /></Route>
             <Route path="/stock-toggle"><StockToggle /></Route>
-            <!-- Any other path for kitchen staff goes to the kitchen dashboard -->
             <Route path="*"><Kitchen /></Route>
 
         {:else if role === 'admin'}
-            <!-- Routes for ADMINS -->
             <Route path="/"><AdminDashboard /></Route>
             <Route path="/sales"><SalesDashBoard /></Route>
-            <!-- Any other path for an admin goes to the admin dashboard -->
             <Route path="*"><AdminDashboard /></Route>
         {/if}
     </Router>

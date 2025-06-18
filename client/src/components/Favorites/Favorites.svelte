@@ -1,7 +1,9 @@
 <script>
     import { onMount } from 'svelte';
+
     import { favorites, toggleFavorite, loadFavorites } from '../../stores/favorites.js';
     import { addToCart } from '../../stores/cart.js';
+    
     import * as toast from '../../util/toast.js';
 
     import "../../styels/favorites.css";

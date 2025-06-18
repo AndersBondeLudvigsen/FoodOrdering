@@ -1,6 +1,8 @@
 <script>
-    import { success, error } from '../../util/toast.js';
     import { navigate } from 'svelte-routing';
+
+    import { success, error } from '../../util/toast.js';
+
 
     let email = $state('');
     let loading = $state(false);

@@ -1,8 +1,10 @@
 <script>
 	import { io } from 'socket.io-client';
+	import { onMount } from 'svelte';
+
 	import * as toast from '../../util/toast.js';
+	
 	import '../../styels/stocktoggle.css';
-  import { onMount } from 'svelte';
 
 	let menuId = $state('');
 	let item = $state(null);

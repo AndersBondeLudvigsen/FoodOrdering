@@ -1,11 +1,16 @@
 <script>
 	import { navigate } from 'svelte-routing';
 	import { io } from 'socket.io-client';
+	import { onMount } from 'svelte';
+
+
 	import * as toast from '../../util/toast.js';
-    import { onMount } from 'svelte';
+
 	import { addToCart } from '../../stores/cart.js';
 	import { favorites, toggleFavorite, loadFavorites } from '../../stores/favorites.js';
+
 	import Nutri from './Nutri.svelte';
+
 	import '../../styels/menuPage.css';
 
 	let menu = $state([]);
@@ -39,7 +44,7 @@
 				const fetchedMenu = await res.json();
 				menu = fetchedMenu; // Opdaterer state
 
-				// Udleder kategorier fra menuen
+				//  kategorier fra menuen
 				const cats = fetchedMenu.map((i) => i.category || 'Uncategorized').filter(Boolean);
 				categories = ['All', ...new Set(cats)];
 
@@ -66,8 +71,8 @@
 		};
 	});
 
-	// 3. Brug `$derived` til at skabe en filtreret liste
-	// Denne variabel bliver automatisk genberegnet, når `menu`, `selectedCat`,`searchTerm` eller `excluded` ændrer sig. pga state
+	
+	// filteredmenu bliver opdateret sammen afhængig af states
 	let filteredMenu = $derived(
 		menu.filter((item) => {
 			const categoryMatch = selectedCat === 'All' || (item.category || 'Uncategorized') === selectedCat;

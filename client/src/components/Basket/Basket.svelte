@@ -1,6 +1,8 @@
 <script>
     import { cart, addToCart, decreaseQuantity, clearCart } from '../../stores/cart.js';
+
     import * as toast from '../../util/toast.js';
+    
     import "../../styels/basket.css";
 
     let loading = $state(false);

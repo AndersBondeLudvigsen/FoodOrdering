@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -133,14 +134,14 @@ router.post('/forgot-password', async (req, res) => {
     return res.send({ message: 'If a user with that email exists, a password reset email has been sent.' });
   } catch (error) {
     console.error('Forgot password error:', error);
-    return res.status(500).json({ message: 'Server error during password reset request' });
+    return res.status(500).send({ message: 'Server error during password reset request' });
   }
 });
 
 router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;
   if (!token || !newPassword) {
-    return res.status(400).json({ message: 'Token and new password are required' });
+    return res.status(400).send({ message: 'Token and new password are required' });
   }
 
   try {
@@ -151,7 +152,7 @@ router.post('/reset-password', async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
+      return res.status(400).send({ message: 'Invalid or expired reset token' });
     }
 
     const userId = rows[0].id;
@@ -167,7 +168,7 @@ router.post('/reset-password', async (req, res) => {
     return res.send({ message: 'Password has been reset successfully.' });
   } catch (error) {
     console.error('Reset password error:', error);
-    return res.status(500).json({ message: 'Server error during password reset' });
+    return res.status(500).send({ message: 'Server error during password reset' });
   }
 });
 
@@ -177,7 +178,7 @@ router.patch('/change-password', authenticate, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: 'Both passwords are required' });
+      return res.status(400).send({ message: 'Both passwords are required' });
     }
 
     try {
@@ -186,12 +187,12 @@ router.patch('/change-password', authenticate, async (req, res) => {
         [userId]
       );
       if (rows.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).send({ message: 'User not found' });
       }
 
       const valid = await bcrypt.compare(oldPassword, rows[0].password);
       if (!valid) {
-        return res.status(401).json({ message: 'Current password is incorrect' });
+        return res.status(401).send({ message: 'Current password is incorrect' });
       }
 
       const newHash = await bcrypt.hash(newPassword, 10);
@@ -202,7 +203,7 @@ router.patch('/change-password', authenticate, async (req, res) => {
 
       return res.send({ message: 'Password updated' });
     } catch (err) {
-      return res.status(500).json({ message: 'Server error' });
+      return res.status(500).send({ message: 'Server error' });
     }
   }
 );

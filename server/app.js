@@ -36,7 +36,9 @@ app.use('/menu',    menuRouter);
 app.use('/recommendations',recommend);
 app.use('/favorites', favoritsRouter)
 app.use('/checkout',checkoutRouter);
+app.use('/orders', ordersRouter);
 app.use('/admin', isAdmin, adminRouter);
+app.use('/kitchen', isKitchen, kitchenRouter)
 
 
 const io = initSocket(server);
@@ -45,7 +47,5 @@ io.on('connection', socket => {
   console.log('🔌 Socket connected', socket.id);
 });
 
-app.use('/orders', ordersRouter);
-app.use('/kitchen', isKitchen, kitchenRouter)
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => console.log(`Server on ${PORT}`));

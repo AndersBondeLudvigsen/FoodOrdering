@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { navigate } from "svelte-routing";
+    
     import { success, error } from "../../util/toast.js";
 
     let newPassword = $state("");

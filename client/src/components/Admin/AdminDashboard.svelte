@@ -1,5 +1,4 @@
 <script>
-	// Importerer en Svelte store, som fungerer fint sammen med Svelte 5
 	import { token } from '../../stores/auth.js';
 	import * as toast from '../../util/toast.js';
 

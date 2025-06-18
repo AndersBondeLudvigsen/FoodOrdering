@@ -1,5 +1,6 @@
 <script>
 	import * as toast from '../../util/toast.js';
+	
 	import Chart from 'chart.js/auto';
 
 	import "../../styels/salesdashboard.css";

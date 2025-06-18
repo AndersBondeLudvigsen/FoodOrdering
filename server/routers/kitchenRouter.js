@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { query }  from '../database/connection.js';
 import { getIO }  from '../utils/socketIo.js';
 
@@ -55,13 +56,6 @@ router.patch('/:id/status', async (req, res) => {
       return res.status(404).send({ message: 'Order not found' });
     }
     const order = rows[0];
-
-    const { rows: items } = await query(
-      `SELECT menu_item_id AS "menuItemId", quantity
-         FROM order_items
-        WHERE order_id = $1`,
-      [orderId]
-    );
 
     const io = getIO();
     io.emit('order-status-update', { orderId, status, userId: order.user_id });

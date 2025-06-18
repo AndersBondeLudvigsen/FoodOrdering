@@ -1,11 +1,9 @@
 // client/src/stores/favorites.js
 import { writable } from 'svelte/store';
 
-// Holds an array of menu_item IDs that the user has starred:
 export const favorites = writable([]);
 
 
-// Utility to load them from the server on startup:
 export async function loadFavorites() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -17,7 +15,6 @@ export async function loadFavorites() {
   });
   if (res.ok) {
     const items = await res.json(); 
-    // recv an array of full menu_item objects; extract their IDs:
     const ids = items.map(item => item.id);
     favorites.set(ids);
   } else {
@@ -25,7 +22,6 @@ export async function loadFavorites() {
   }
 }
 
-// Toggle a favorite: if id is already in store, DELETE; else POST
 export async function toggleFavorite(menuItemId) {
   const token = localStorage.getItem('token');
   if (!token) return;
