@@ -1,83 +1,81 @@
 <script>
-  import { cart, decreaseQuantity, clearCart }   from '../../stores/cart.js';
-  import * as toast from '../../util/toast.js';
-  import "../../styels/basket.css"
+    import { cart, addToCart, decreaseQuantity, clearCart } from '../../stores/cart.js';
+    import * as toast from '../../util/toast.js';
+    import "../../styels/basket.css";
 
-  let items = [];
-  let loading = false;
-  cart.subscribe(v => (items = v));
+    let loading = $state(false);
 
-  async function placeOrderAndPay() {
-    if (!items.length) {
-      toast.error('Your basket is empty');
-      return;
-    }
-    loading = true;
+    
+    // total opdaterer sig automatisk, HVER gang `$cart` ændrer sig.
+    let total = $derived(
+        $cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    );
 
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('You must be logged in');
-
-      localStorage.setItem('pending_order', JSON.stringify(items));
-
-      const res = await fetch(
-        'http://localhost:8080/checkout/create-checkout-session',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            items: items.map(i => ({
-              id:       i.id,
-              name:     i.name,
-              price:    i.price,
-              quantity: i.quantity
-            }))
-          })
+    async function placeOrderAndPay() {
+        if ($cart.length === 0) {
+            toast.error('Your basket is empty');
+            return;
         }
-      );
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.message || 'Failed to start checkout');
+        loading = true;
 
-      window.location.href = body.url;
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      loading = false;
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('You must be logged in');
+
+            localStorage.setItem('pending_order', JSON.stringify($cart));
+
+            const res = await fetch(
+                'http://localhost:8080/checkout/create-checkout-session',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ items: $cart })
+                }
+            );
+            const body = await res.json();
+            if (!res.ok) throw new Error(body.message || 'Failed to start checkout');
+
+            window.location.href = body.url;
+        } catch (err) {
+            toast.error(err.message);
+        } finally {
+            loading = false;
+        }
     }
-  }
 </script>
+
 <div class="basket-container">
-  <h1>Your Basket</h1>
+    <h1>Your Basket</h1>
 
-  {#if items.length === 0}
-    <p>Your basket is empty.</p>
-  {:else}
-    <ul>
-    {#each $cart as item (item.id)}
-    <li class="basket-item">
-        <span class="item-name">{item.name}</span>
-        
-        <!-- Kontroller til at justere antal -->
-        <div class="item-quantity">
-            <button class="quantity-btn" on:click={() => decreaseQuantity(item.id)}>−</button>
-            <span>{item.quantity}</span>
-        </div>
-          </li>
-{/each}
-    </ul>
-    <p class="total">
-      Total: {items.reduce((s, i) => s + i.price * i.quantity, 0)} DKK
-    </p>
-    <button on:click={placeOrderAndPay} disabled={loading}>
-      {#if loading}Redirecting…{:else}Place Order & Pay{/if}
-    </button>
-  {/if}
+    {#if $cart.length === 0}
+        <p>Your basket is empty.</p>
+    {:else}
+        <ul>
+            {#each $cart as item (item.id)}
+                <li class="basket-item">
+                    <span class="item-name">{item.name}</span>
+                    <div class="item-quantity">
+                        <button class="quantity-btn" onclick={() => decreaseQuantity(item.id)}>−</button>
+                        <span>{item.quantity}</span>
+                        <button class="quantity-btn" onclick={() => addToCart(item)}>+</button>
+                    </div>
+                </li>
+            {/each}
+        </ul>
 
-  <div class="basket-actions">
-    <!-- Knap til at rydde hele kurven -->
-    <button style="background-color: red;" class="clear-btn" on:click={clearCart}>Tøm Kurv</button>
-</div>
+        <p class="total">
+            Total: {total.toFixed(2)} DKK
+        </p>
+
+        <button onclick={placeOrderAndPay} disabled={loading}>
+            {#if loading}Redirecting…{:else}Place Order & Pay{/if}
+        </button>
+    {/if}
+
+    <div class="basket-actions">
+        <button style="background-color: red;" class="clear-btn" onclick={clearCart}>Tøm Kurv</button>
+    </div>
 </div>

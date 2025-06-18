@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
-    return res.status(400).json({ message: 'Missing fields' });
+    return res.status(400).send({ message: 'Missing fields' });
   }
 
   try {
@@ -32,7 +32,7 @@ router.post('/signup', async (req, res) => {
       [email]
     );
     if (existing.length) {
-      return res.status(400).json({ message: 'Email already in use' });
+      return res.status(400).send({ message: 'Email already in use' });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -49,9 +49,9 @@ router.post('/signup', async (req, res) => {
       text: `Hello ${username}, welcome aboard!`
     });
 
-    return res.status(201).json({ message: 'User created' });
+    return res.status(201).send({ message: 'User created' });
   } catch (error) {
-    return res.status(500).json({ message: 'Server error during signup' });
+    return res.status(500).send({ message: 'Server error during signup' });
   }
 });
 
@@ -59,7 +59,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ message: 'Missing credentials' });
+    return res.status(400).send({ message: 'Missing credentials' });
   }
 
   try {
@@ -68,13 +68,13 @@ router.post('/login', async (req, res) => {
       [email]
     );
     if (rows.length === 0) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).send({ message: 'Invalid credentials' });
     }
     const user = rows[0];
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).send({ message: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
@@ -88,7 +88,7 @@ router.post('/login', async (req, res) => {
       role: user.role
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Server error during login' });
+    return res.status(500).send({ message: 'Server error during login' });
   }
 });
 

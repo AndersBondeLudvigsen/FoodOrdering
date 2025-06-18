@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
   if (!Array.isArray(likedIngredients)) {
     return res
       .status(400)
-      .json({ message: 'likedIngredients must be an array' });
+      .send({ message: 'likedIngredients must be an array' });
   }
 
   try {
@@ -19,8 +19,8 @@ router.post('/', async (req, res) => {
         mi.id,
         mi.name,
         mi.image_url,
-        mi.price,      -- <--- ADDED: Select the price
-        mi.available,  -- <--- ADDED: Select the 'available' status
+        mi.price,     
+        mi.available, 
         COALESCE(
           json_agg(i.name) FILTER (WHERE i.id IS NOT NULL),
           '[]'
@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
       LEFT JOIN ingredients i
         ON i.id = mii.ingredient_id
       WHERE mi.available = true
-      GROUP BY mi.id, mi.name, mi.image_url, mi.price, mi.available -- <--- ADDED: Group by price and available
+      GROUP BY mi.id, mi.name, mi.image_url, mi.price, mi.available 
       ORDER BY mi.id
     `);
 
@@ -79,7 +79,7 @@ Suggest up to 5 dishes from the above list, formatted as a JSON array:
     });
 
     if (!apiRes.ok) {
-      return res.status(502).json({ message: 'AI service error' });
+      return res.status(502).send({ message: 'AI service error' });
     }
 
     const apiJson = await apiRes.json();

@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
 
     return res.send(rows);
   } catch (err) {
-    return res.status(500).json({ message: 'Server error loading orders' });
+    return res.status(500).send({ message: 'Server error loading orders' });
   }
 });
 
@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
   const { items } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ message: 'Cart is empty' });
+    return res.status(400).send({ message: 'Cart is empty' });
   }
 
   try {
@@ -66,9 +66,9 @@ router.post('/', async (req, res) => {
 
     getIO().emit('new-order', { orderId, createdAt, items, userId });
 
-    return res.status(201).json({ orderId, createdAt });
+    return res.status(201).send({ orderId, createdAt });
   } catch (err) {
-    return res.status(500).json({ message: 'Server error creating order' });
+    return res.status(500).send({ message: 'Server error creating order' });
   }
 });
 

@@ -6,7 +6,6 @@
     padding: 1.5rem 1rem;
     border-top: 1px solid #ddd;
     font-size: 0.9rem;
-    /* No margin-top here */
   }
 
   .footer-links {

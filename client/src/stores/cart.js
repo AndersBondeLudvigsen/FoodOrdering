@@ -7,19 +7,10 @@ import * as toast from '../util/toast.js';
 export const cart = writable([]);
 
 
-export function removeFromCart(itemId) {
-  cart.update(items => {
-    return items.filter(item => item.id !== itemId);
-  });
-}
-
-
-
 export function clearCart() {
   cart.set([]);
 }
 
-// I stores/cart.js
 export function decreaseQuantity(itemId) {
   cart.update(items => {
     const item = items.find(i => i.id === itemId);

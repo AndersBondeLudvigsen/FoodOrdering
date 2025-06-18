@@ -32,7 +32,7 @@ router.post('/create-checkout-session', async (req, res) => {
     });
     res.send({ url: session.url });
   } catch (err) {
-    res.status(500).json({ message: 'Could not create checkout session' });
+    res.status(500).send({ message: 'Could not create checkout session' });
   }
 });
 

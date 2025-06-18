@@ -5,7 +5,6 @@ import { query } from '../database/connection.js';
 const router = Router();
 
 
-// --- Existing /users routes ---
 router.get('/users', async (req, res) => {
     try {
         const { rows } = await query(`
@@ -16,7 +15,7 @@ router.get('/users', async (req, res) => {
         res.send(rows);
     } catch (err) {
         console.error('Admin GET /users error:', err);
-        res.status(500).json({ message: 'Server error fetching users' });
+        res.status(500).send({ message: 'Server error fetching users' });
     }
 });
 
@@ -25,7 +24,7 @@ router.get('/users', async (req, res) => {
 
 router.get('/sales', async (req, res) => {
     try {
-        // 1) Daily sales totals (last 30 days)
+        //  Daily sales totals (last 30 days)
         const { rows: dailyRows } = await query(`
             SELECT
                 date_trunc('day', o.created_at) AS day,
@@ -41,7 +40,7 @@ router.get('/sales', async (req, res) => {
             ORDER BY day;
         `);
 
-        // 2) Top 5 selling items (by total quantity) in last 30 days
+        // Top 5 selling items (by total quantity) in last 30 days
         const { rows: topItemsRows } = await query(`
             SELECT
                 mi.id,
@@ -59,7 +58,7 @@ router.get('/sales', async (req, res) => {
             LIMIT 5;
         `);
 
-        // 3) Peak hours (count of orders by hour of day) for last week
+        //  Peak hours (count of orders by hour of day) for last week
         const { rows: hourlyRows } = await query(`
             SELECT
                 extract(hour from o.created_at) AS hour,
@@ -72,37 +71,33 @@ router.get('/sales', async (req, res) => {
         `);
 
         return res.send({
-            daily: dailyRows,       // [{ day, total_sales }, …]
-            topItems: topItemsRows, // [{ id, name, total_quantity }, …]
-            hourly: hourlyRows      // [{ hour, order_count }, …]
+            daily: dailyRows,       
+            topItems: topItemsRows, 
+            hourly: hourlyRows     
         });
     } catch (err) {
         console.error('Admin GET /sales error:', err);
-        res.status(500).json({ message: 'Server error fetching sales data' });
+        res.status(500).send({ message: 'Server error fetching sales data' });
     }
 });
 
-// --- NEW FEATURE: Route to get sales for a specific menu item by name ---
 router.get('/sales/item-by-name', async (req, res) => {
-    const itemName = req.query.name; // Get item name from query parameter
+    const itemName = req.query.name; 
     if (!itemName) {
-        return res.status(400).json({ message: 'Menu item name is required.' });
+        return res.status(400).send({ message: 'Menu item name is required.' });
     }
 
     try {
-        // Find the menu item ID first (case-insensitive search)
         const { rows: itemRows } = await query(
             `SELECT id FROM menu_items WHERE name ILIKE $1`,
             [itemName]
         );
 
         if (itemRows.length === 0) {
-            return res.status(404).json({ message: 'Menu item not found.' });
+            return res.status(404).send({ message: 'Menu item not found.' });
         }
 
         const itemId = itemRows[0].id;
-
-        // Fetch sales for different periods, using COALESCE to ensure 0 values if no sales
         const { rows: dailyItemSales } = await query(`
             SELECT
                 COALESCE(SUM(oi.quantity), 0)::INT AS total_quantity_sold,
@@ -151,7 +146,7 @@ router.get('/sales/item-by-name', async (req, res) => {
         `, [itemId]);
 
         res.send({
-            itemName: itemName, // Return the exact name from the input for display
+            itemName: itemName,
             id: itemId,
             today: dailyItemSales[0],
             thisWeek: weeklyItemSales[0],
@@ -161,13 +156,13 @@ router.get('/sales/item-by-name', async (req, res) => {
 
     } catch (err) {
         console.error('Admin GET /sales/item-by-name error:', err);
-        res.status(500).json({ message: 'Server error fetching item sales data.' });
+        res.status(500).send({ message: 'Server error fetching item sales data.' });
     }
 });
 
 
 
-router.post('/update/menu-items', async (req, res) => {
+router.post('/menu-items', async (req, res) => {
     const {
       name,
       price,
@@ -178,7 +173,7 @@ router.post('/update/menu-items', async (req, res) => {
     } = req.body;
 
     if (!name || typeof price !== 'number') {
-      return res.status(400).json({ message: 'Name and numeric price are required' });
+      return res.status(400).send({ message: 'Name and numeric price are required' });
     }
 
     try {
@@ -210,10 +205,10 @@ router.post('/update/menu-items', async (req, res) => {
         );
       }
 
-      res.status(201).json({ menuItemId });
+      res.status(201).send({ menuItemId });
     } catch (err) {
       console.error('Admin POST /menu-items error:', err);
-      res.status(500).json({ message: 'Server error creating menu item' });
+      res.status(500).send({ message: 'Server error creating menu item' });
     }
 });
 
@@ -228,9 +223,8 @@ router.patch('/menu-items/:id', async (req, res) => {
       ingredients = []
     } = req.body;
 
-    // Add validation for required fields if name or price can be updated
     if (typeof name !== 'string' || name.trim() === '' || typeof price !== 'number') {
-        return res.status(400).json({ message: 'Name (string) and Price (number) are required fields for update.' });
+        return res.status(400).send({ message: 'Name (string) and Price (number) are required fields for update.' });
     }
 
     try {
@@ -241,14 +235,12 @@ router.patch('/menu-items/:id', async (req, res) => {
         [name, price, category, image_url, available, itemId]
       );
 
-      // Delete existing ingredients for this menu item
       await query(
         `DELETE FROM menu_item_ingredients
           WHERE menu_item_id = $1`,
         [itemId]
       );
 
-      // Add new ingredients
       for (const ingName of ingredients) {
         await query(
           `INSERT INTO ingredients (name)
@@ -272,7 +264,7 @@ router.patch('/menu-items/:id', async (req, res) => {
       res.send({ message: 'Menu item updated successfully.' });
     } catch (err) {
       console.error('Admin PATCH /menu-items/:id error:', err);
-      res.status(500).json({ message: 'Server error updating menu item' });
+      res.status(500).send({ message: 'Server error updating menu item' });
     }
 });
 
@@ -282,7 +274,7 @@ router.patch('/users/:id', async (req, res) => {
     const { username, email, role, password } = req.body;
 
     if (role && !['customer', 'admin'].includes(role)) {
-      return res.status(400).json({ message: 'Invalid role' });
+      return res.status(400).send({ message: 'Invalid role' });
     }
 
     const sets = [];
@@ -311,7 +303,7 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     if (sets.length === 0) {
-      return res.status(400).json({ message: 'No fields to update' });
+      return res.status(400).send({ message: 'No fields to update' });
     }
 
     const sql = `
@@ -326,16 +318,16 @@ router.patch('/users/:id', async (req, res) => {
       const result = await query(sql, values);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).send({ message: 'User not found' });
       }
 
       return res.send(result.rows[0]);
     } catch (err) {
       console.error('Admin PATCH /users/:id error:', err);
       if (err.code === '23505' && err.constraint === 'users_email_key') {
-        return res.status(400).json({ message: 'Email already in use' });
+        return res.status(400).send({ message: 'Email already in use' });
       }
-      return res.status(500).json({ message: 'Server error updating user' });
+      return res.status(500).send({ message: 'Server error updating user' });
     }
 });
 
@@ -344,17 +336,17 @@ router.patch('/users/:id', async (req, res) => {
 router.delete('/menu-items/:id', async (req, res) => {
     const itemId = Number(req.params.id);
     try {
-      const result = await query( // Check if item was actually deleted
+      const result = await query( 
         `DELETE FROM menu_items WHERE id = $1 RETURNING id`,
         [itemId]
       );
       if (result.rowCount === 0) {
-        return res.status(404).json({ message: 'Menu item not found.' });
+        return res.status(404).send({ message: 'Menu item not found.' });
       }
       res.send({ message: 'Menu item deleted successfully.' });
     } catch (err) {
       console.error('Admin DELETE /menu-items/:id error:', err);
-      res.status(500).json({ message: 'Server error deleting menu item' });
+      res.status(500).send({ message: 'Server error deleting menu item' });
     }
 });
 

@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
     return res.send(rows);
   } catch (err) {
-    return res.status(500).json({ message: 'Server error loading pending orders' });
+    return res.status(500).send({ message: 'Server error loading pending orders' });
   }
 });
 
@@ -40,7 +40,7 @@ router.patch('/:id/status', async (req, res) => {
   const { status } = req.body;
   const valid = ['pending', 'in making', 'ready'];
   if (!valid.includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
+    return res.status(400).send({ message: 'Invalid status' });
   }
 
   try {
@@ -52,7 +52,7 @@ router.patch('/:id/status', async (req, res) => {
       [status, orderId]
     );
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).send({ message: 'Order not found' });
     }
     const order = rows[0];
 
@@ -69,7 +69,7 @@ router.patch('/:id/status', async (req, res) => {
 
     return res.send({ orderId, status });
   } catch (err) {
-    return res.status(500).json({ message: 'Server error updating order status' });
+    return res.status(500).send({ message: 'Server error updating order status' });
   }
 });
 
@@ -84,7 +84,7 @@ router.patch('/:id/cancel', async (req, res) => {
       [orderId]
     );
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).send({ message: 'Order not found' });
     }
     const { status, user_id: userId } = rows[0];
 
@@ -93,7 +93,7 @@ router.patch('/:id/cancel', async (req, res) => {
 
     return res.send({ orderId, status });
   } catch (err) {
-    return res.status(500).json({ message: 'Server error cancelling order' });
+    return res.status(500).send({ message: 'Server error cancelling order' });
   }
 });
 
@@ -103,7 +103,7 @@ router.patch('/menu-items/:id/availability', async (req, res) => {
   const { available } = req.body; 
 
   if (typeof available !== 'boolean') {
-    return res.status(400).json({ message: 'available must be boolean' });
+    return res.status(400).send({ message: 'available must be boolean' });
   }
 
   try {
@@ -115,7 +115,7 @@ router.patch('/menu-items/:id/availability', async (req, res) => {
       [available, itemId]
     );
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).send({ message: 'Item not found' });
     }
     const updated = rows[0];
 
@@ -127,7 +127,7 @@ router.patch('/menu-items/:id/availability', async (req, res) => {
 
     return res.send(updated);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).send({ message: 'Server error' });
   }
 });
 

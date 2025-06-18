@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
           `);
     res.send(rows);
   } catch (err) {
-    res.status(500).json({ message: 'Server error loading menu' });
+    res.status(500).send({ message: 'Server error loading menu' });
   }
 });
 
@@ -55,11 +55,11 @@ router.get('/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).send({ message: 'Item not found' });
     }
     res.send(rows[0]);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).send({ message: 'Server error' });
   }
 });
 export default router;

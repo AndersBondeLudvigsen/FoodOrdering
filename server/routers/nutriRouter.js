@@ -7,15 +7,12 @@ const router = Router();
 
 
 router.get( '/:id', async (req, res) => {
-    // 1) Parse menu_item_id
     const menuItemId = parseInt(req.params.id, 10);
     if (isNaN(menuItemId)) {
-      return res.status(400).json({ error: 'Ugyldigt menu-item id' });
+      return res.status(400).send({ error: 'Ugyldigt menu-item id' });
     }
 
     try {
-      // 2) Hent ingrediens-navne fra DB til præcis dette menu_item_id
-      //    (Returnerer én række med et JSON-array 'ingredients')
       const { rows } = await query(
         `
         SELECT
@@ -33,10 +30,9 @@ router.get( '/:id', async (req, res) => {
       );
 
       if (!rows.length) {
-        // Enten findes item ikke, eller der er ingen ingredienser
         return res
           .status(404)
-          .json({ error: 'Menu-item ikke fundet eller uden ingredienser' });
+          .send({ error: 'Menu-item ikke fundet eller uden ingredienser' });
       }
 
       // rows[0].ingredients er et array af strenge: ["1kg Beef", "2 tbs Flour", …]
@@ -51,7 +47,7 @@ router.get( '/:id', async (req, res) => {
       console.error('Fejl i GET /menu/:id/nutrition:', err);
       return res
         .status(500)
-        .json({ error: 'Server-fejl ved hentning af ernæringsdata' });
+        .send({ error: 'Server-fejl ved hentning af ernæringsdata' });
     }
   }
 );

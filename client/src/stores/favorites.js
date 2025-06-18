@@ -4,6 +4,7 @@ import { writable } from 'svelte/store';
 // Holds an array of menu_item IDs that the user has starred:
 export const favorites = writable([]);
 
+
 // Utility to load them from the server on startup:
 export async function loadFavorites() {
   const token = localStorage.getItem('token');

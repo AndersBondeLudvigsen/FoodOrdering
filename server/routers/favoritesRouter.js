@@ -14,27 +14,27 @@ router.get('/', async (req, res) => {
           mi.price,
           mi.image_url,
           mi.category,
-          mi.available, -- ADDED THIS LINE
+          mi.available, 
           COALESCE(
             json_agg(i.name) FILTER (WHERE i.id IS NOT NULL),
             '[]'
-          ) AS ingredients -- AND ADDED THIS BLOCK
+          ) AS ingredients 
         FROM menu_items mi
         JOIN favorites f
           ON mi.id = f.menu_item_id
-        LEFT JOIN menu_item_ingredients mii -- Need to LEFT JOIN ingredients
+        LEFT JOIN menu_item_ingredients mii 
           ON mii.menu_item_id = mi.id
         LEFT JOIN ingredients i
           ON i.id = mii.ingredient_id
         WHERE f.user_id = $1
-        GROUP BY mi.id -- Need to GROUP BY since we are aggregating
+        GROUP BY mi.id 
         ORDER BY mi.name`,
       [userId]
     );
     res.send(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch favorites' });
+    res.status(500).send({ error: 'Failed to fetch favorites' });
   }
 });
 
@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
     const userId = req.user.id;
     const { menuItemId } = req.body;
     if (!menuItemId) {
-      return res.status(400).json({ error: 'menuItemId is required' });
+      return res.status(400).send({ error: 'menuItemId is required' });
     }
     await query(
       `INSERT INTO favorites (user_id, menu_item_id)
@@ -51,14 +51,13 @@ router.post('/', async (req, res) => {
        ON CONFLICT DO NOTHING`,
       [userId, menuItemId]
     );
-    res.status(201).json({ success: true });
+    res.status(201).send({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to add favorite' });
+    res.status(500).send({ error: 'Failed to add favorite' });
   }
 });
 
-// 3) Remove (unstar) a menu item - This endpoint is correct and needs no changes
 router.delete('/:menuItemId', async (req, res) => {
   try {
     const userId = req.user.id;
@@ -71,7 +70,7 @@ router.delete('/:menuItemId', async (req, res) => {
     res.send({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to remove favorite' });
+    res.status(500).send({ error: 'Failed to remove favorite' });
   }
 });
 
