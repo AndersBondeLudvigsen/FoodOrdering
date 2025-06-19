@@ -2,7 +2,7 @@
         import { onMount } from 'svelte';
         import { navigate, useLocation } from 'svelte-routing';
         import { io } from 'socket.io-client';
-        
+
         import * as toast from '../../util/toast.js';
 
         import "../../styels/myOrders.css";
@@ -64,7 +64,6 @@
             }
         }
 
-        // --- WebSocket Håndtering ---
         function setupSocketListeners(token, userId) {
             const socket = io('http://localhost:8080', { auth: { token } });
 
@@ -89,7 +88,6 @@
             return () => socket.disconnect();
         }
 
-        // --- Side Initialisering ---
         async function initializePage(token, userId) {
             try {
                 const params = new URLSearchParams($location.search);
@@ -100,7 +98,8 @@
                 }
                 await fetchInitialOrders(token);
                 return setupSocketListeners(token, userId);
-            } catch (err) {
+            } 
+            catch (err) {
                 toast.error(err.message);
                 navigate('/login');
                 return () => {};
@@ -149,7 +148,7 @@
                         </header>
                         <ul class="order-items">
                             {#each order.items as item}
-                                <li>• Vare ID {item.menuItemId} × {item.quantity}</li>
+                                <li>• item ID {item.menuItemId} × {item.quantity}</li>
                             {/each}
                         </ul>
                     </div>
@@ -169,7 +168,7 @@
                         </header>
                         <ul class="order-items">
                             {#each order.items as item}
-                                <li>• Vare ID {item.menuItemId} × {item.quantity}</li>
+                                <li>• item ID {item.menuItemId} × {item.quantity}</li>
                             {/each}
                         </ul>
                     </div>
@@ -189,7 +188,7 @@
                         </header>
                         <ul class="order-items">
                             {#each order.items as item}
-                                <li>• Vare ID {item.menuItemId} × {item.quantity}</li>
+                                <li>• item ID {item.menuItemId} × {item.quantity}</li>
                             {/each}
                         </ul>
                         <button class="reorder-btn" onclick={() => reorder(order)}>

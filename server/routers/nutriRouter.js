@@ -40,10 +40,10 @@ router.get( '/:id', async (req, res) => {
       // rows[0].ingredients er et array af strenge: ["1kg Beef", "2 tbs Flour", …]
       const ingredientLines = rows[0].ingredients;
 
-      // 3) Kalder Nutritionix-helper med ingredient-array
+      //  Kalder Nutritionix-helper med ingredient-array
       const nutritionixData = await analyzeNutritionix(ingredientLines);
 
-      // 4) Returnér Nutritionix-svar som JSON
+      //  Returnér Nutritionix-svar som JSON
       return res.send(nutritionixData);
     } catch (err) {
       console.error('Fejl i GET /menu/:id/nutrition:', err);

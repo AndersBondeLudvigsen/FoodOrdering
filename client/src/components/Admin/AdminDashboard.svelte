@@ -5,7 +5,6 @@
 	import "../../styels/adminDashboard.css";
 
 	
-	// Alle reaktive variabler $state.
 	let showCreateModal = $state(false);
 	let createForm = $state({ name: '', price: 0, category: '', image_url: '', available: true, ingredientsText: '' });
 

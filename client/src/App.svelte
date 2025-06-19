@@ -44,7 +44,6 @@
     <Router>
         {#if $token}
             <nav>
-                <button on:click={logout}>Log Out</button>
                 {#if role === 'customer'}
                     <Link to="/">Home</Link>
                     <Link to="/basket">Basket</Link>
@@ -52,16 +51,24 @@
                     <Link to="/recommend">Recommend</Link>
                     <Link to="/change-password">Change Password</Link>
                     <Link to="/favorites">Favorites</Link>
+                                           <button on:click={logout}>Log Out</button>
+
                 {/if}
                 {#if role === 'kitchen'}
                     <Link to="/">Kitchen</Link>
                     <Link to="/stock-toggle">Stock Toggle</Link>
+                     <button on:click={logout}>Log Out</button>
+
                 {/if}
                 {#if role === 'admin'}
                     <Link to="/">Admin Dashboard</Link>
                     <Link to="/sales">Sales</Link>
+                     <button on:click={logout}>Log Out</button>
+
                 {/if}
+
             </nav>
+
         {/if}
 
         

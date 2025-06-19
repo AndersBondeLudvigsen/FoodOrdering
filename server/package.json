@@ -15,6 +15,7 @@
   "type": "module",
   "scripts": {
     "clear-db": "node database/clearDb.js",
-    "seed-db": "node database/seedDb.js"
+    "seed-db": "node database/seedDb.js",
+    "dev" : "nodemon app.js"
   }
 }

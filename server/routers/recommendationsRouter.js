@@ -10,8 +10,7 @@ router.post('/', async (req, res) => {
   const { likedIngredients } = req.body;
   if (!Array.isArray(likedIngredients)) {
     return res
-      .status(400)
-      .send({ message: 'likedIngredients must be an array' });
+      .status(400).send({ message: 'likedIngredients must be an array' });
   }
 
   try {

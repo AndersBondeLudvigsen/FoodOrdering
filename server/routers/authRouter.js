@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 });
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
-  if (!username || !email || !password) {
+  if (!username || !email || !password || password.length < 8) {
     return res.status(400).send({ message: 'Missing fields' });
   }
 
